@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Cj.Fca</name>
+    </assembly>
+    <members>
+        <member name="T:Cj.Fca.Context">
+            <summary>
+            Represents a binary formal context document. A formal context consists of objects and attributes and a incidence relation
+            between objects and attributes. For the structure and usage see context markup description (context.xsd).
+            </summary>
+        </member>
+        <member name="T:Cj.Fca.Context.ItemKind">
+            <summary>
+            Defines the kind of context items for the well defined context document.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.ItemKind.Generic">
+            <summary>Set is interpreted as an object or attribute belonging to given item.</summary>
+        </member>
+        <member name="F:Cj.Fca.Context.ItemKind.Attribute">
+            <summary>Empty set is interpreted as an attribute item.</summary>
+        </member>
+        <member name="F:Cj.Fca.Context.ItemKind.Object">
+            <summary>Empty set is interpreted as an object item.</summary>
+        </member>
+        <member name="F:Cj.Fca.Context.MaxDegreeOfParallelism">
+            <summary>
+            Set degree of parallelism to be used to find concepts concurrently.
+            </summary>
+        </member>
+        <member name="M:Cj.Fca.Context.Validate(System.String@,System.String)">
+            <summary>
+            This static function validates the given XML file against an XSD format specification that is defined by <see cref="M:Cj.Fca.Context.XsdMarkup"/> as an embedded resource (Context.xsd).
+            </summary>
+            <param name="Protocol">Contains error messages if format errors are detected.</param>
+            <param name="XmlFile">XML file to be checked.</param>
+            <returns>True if there are no errors, otherwise false. Errors can be looked up in the protocol back from this procedure.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.Validate(System.String@,System.Xml.Linq.XDocument)">
+            <summary>
+            This static function validates the given XML file against an XSD format specification that is defined by <see cref="M:Cj.Fca.Context.XsdMarkup"/> as an embedded resource (Context.xsd).
+            </summary>
+            <param name="Protocol">Contains error messages if format errors are detected.</param>
+            <param name="XmlData">XML data to be checked.</param>
+            <returns>True if there are no errors, otherwise false. Errors can be looked up in the protocol back from this procedure.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.CreateStandardContextWithTwoElements">
+            <summary>
+            Creates a standard context with two elements.
+            </summary>
+            <returns>A context document that contains a two dimensional data structure.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.ToHtml(System.String[],System.String,System.Boolean)">
+            <summary>
+            Converts protocol strings to html.
+            </summary>
+            <param name="Protocol">Text to be converted.</param>
+            <param name="Title">Title of html page.</param>
+            <param name="Wrap">Determines if text should be wrapped.</param>
+            <returns>Html text that can be shown by a browser.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.#ctor(System.String)">
+            <summary>
+            Creates a valid context document.
+            </summary>
+            <param name="XmlFile">XML file to be read.</param>
+        </member>
+        <member name="M:Cj.Fca.Context.#ctor(System.Xml.Linq.XDocument)">
+            <summary>
+            Creates a valid context document.
+            </summary>
+            <param name="XmlData">XML data to be read.</param>
+        </member>
+        <member name="M:Cj.Fca.Context.DocumentUri">
+            <summary>
+            Base uri will be set by constructor if XML file is read.
+            </summary>
+            <returns>Document uri belonging to formal context if exists.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.GetContextDocument">
+            <summary>
+            Creates a deep copy of given context document.
+            </summary>
+            <returns>Returns a copy of the underlying XML document.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.FindConceptsAsync(Cj.Fca.Context.ItemKind)">
+            <summary>
+            Computes all formal concepts of given context by naive algorithm, i.e., each item of the power set of
+            attribute or object items is checked with the help of the derivation operator whether A = A'' is true.
+            </summary>
+            <param name="Kind">The kind parameter is used to start the computation over attributes or objects. If
+            set to generic, the computation starts with the smallest size of given context items.</param>
+            <returns>Sorted list of concepts.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.FindConceptsParallel(System.Threading.CancellationTokenSource,Cj.Fca.Context.ItemKind)">
+            <summary>
+            Computes all formal concepts of given context by naive algorithm concurrently, i.e., each item of the power set of
+            attribute or object items is checked with the help of the derivation operator whether A = A'' is true.
+            </summary>
+            <param name="Cancellation">Signals cancellation.</param>
+            <param name="Kind">The kind parameter is used to start the computation over attributes or objects. If
+            set to generic, the computation starts with the smallest size of given context items.</param>
+            <returns>Sorted list of concepts.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.IsValid">
+            <summary>
+            Checks whether context document is valid.
+            </summary>
+            <returns>Returns true if context document is valid, otherwise false.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.GetAttributes">
+            <summary>
+            Attribute declarations of given context document.
+            </summary>
+            <returns>Returns the array of attribute declarations.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.GetAttributes(System.Int32[])">
+            <summary>
+            Selected attribute declarations of given context document.
+            </summary>
+            <returns>Returns a sorted set of attribute declarations defined by an array of selected index positions. If an index does not exist, the return value is an empty array.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.GetObjects">
+            <summary>
+            Object declarations of given context document.
+            </summary>
+            <returns>Returns the array of object declarations.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.GetObjects(System.Int32[])">
+            <summary>
+            Selected object declarations of given context document.
+            </summary>
+            <returns>Returns a sorted set of object declarations defined by an array of selected index positions. If an index does not exist, the return value is an empty array.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.Row(System.Int32)">
+            <summary>
+            Row at given index position.
+            </summary>
+            <param name="Index">Index to be set in the range from 1 to n.</param>
+            <returns>Returns the row that consists of all columns in an ascending order of column index that belong to the row position.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.Column(System.Int32)">
+            <summary>
+            Column at given index position.
+            </summary>
+            <param name="Index">Index to be set in the range from 1 to n.</param>
+            <returns>Returns the column that consists of all rows in an ascending order of row index that belong to the row position.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.CrossTable(System.Boolean)">
+            <summary>
+            Converts the XML data structure of formal context to a HTML table.
+            </summary>
+            <returns>Lines of a HTML document.</returns>
+        </member>
+    </members>
+</doc>

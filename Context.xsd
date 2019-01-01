@@ -1,0 +1,324 @@
+﻿<xsd:schema version='1.0' attributeFormDefault='unqualified' elementFormDefault='qualified' xmlns:xsd='http://www.w3.org/2001/XMLSchema'>
+  <xsd:element name='Data'>
+    <xsd:annotation>
+      <xsd:documentation xml:lang='en-us'>The data element consists of a header with titles and a context item that can be represented by a cross table.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name='Header' minOccurs='1' maxOccurs='1'>
+          <xsd:annotation>
+            <xsd:documentation xml:lang='en-us'>A header helps you describe data and can hold three types of string items: title, subtitle and memo. The memo item can be used to record other information. </xsd:documentation>
+          </xsd:annotation>
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name='Title' minOccurs='1' maxOccurs='1' type='xsd:string'/>
+              <xsd:element name='Subtitle' minOccurs='0' maxOccurs='1' type='xsd:string'/>
+              <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name='Context' minOccurs='1' maxOccurs='1'>
+          <xsd:annotation>
+            <xsd:documentation xml:lang='en-us'>A rectangular table where columns are headed by attribute names and rows are headed by object names with cells for alternative values like true and false. A true value in the context item list means that the attribute belongs to the object.</xsd:documentation>
+          </xsd:annotation>
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name='Clarified' minOccurs='0' maxOccurs='1'>
+                <xsd:complexType>
+                  <xsd:attribute name='ByObject' type='xsd:boolean' use='required'/>
+                  <xsd:attribute name='ByAttribute' type='xsd:boolean' use='required'/>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name='Reduced' minOccurs='0' maxOccurs='1'>
+                <xsd:complexType>
+                  <xsd:attribute name='ByObject' type='xsd:boolean' use='optional'/>
+                  <xsd:attribute name='ByAttribute' type='xsd:boolean' use='optional'/>
+                  <xsd:attribute name='ByZero' type='xsd:boolean' use='required'/>
+                  <xsd:attribute name='ByUnity' type='xsd:boolean' use='required'/>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name='Declarations' minOccurs='1' maxOccurs='1'>
+                <xsd:annotation>
+                  <xsd:documentation xml:lang='en-us'>Declarations can be described by a list of attributes and objects.</xsd:documentation>
+                </xsd:annotation>
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name='Attributes' minOccurs='1' maxOccurs='1'>
+                      <xsd:annotation>
+                        <xsd:documentation xml:lang='en-us'>List of attributes in any order. It is common to start with index 1 in a linear strict order.</xsd:documentation>
+                      </xsd:annotation>
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name='Reduced' minOccurs='0' maxOccurs='1'/>
+                          <xsd:element name='Attribute' minOccurs='1' maxOccurs='unbounded'>
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name='PrimaryKey' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Source' type='SourceType' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Clarified' minOccurs='0' maxOccurs='1'>
+                                  <xsd:annotation>
+                                    <xsd:documentation xml:lang='en-us'>List of clarified attributes.</xsd:documentation>
+                                  </xsd:annotation>
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name='Attribute' minOccurs='1' maxOccurs='unbounded'>
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name='Source' type='SourceType' minOccurs='0' maxOccurs='1'/>
+                                            <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+                                          </xsd:sequence>
+                                          <xsd:attributeGroup ref='DeclarationGroup'/>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name='ReIndexedByClarifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                                <xsd:element name='ReIndexedByReducing' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                              </xsd:sequence>
+                              <xsd:attributeGroup ref='DeclarationGroup'/>
+                              <xsd:attribute name='_1-generated' use='optional'>
+                                <xsd:simpleType>
+                                  <xsd:restriction base='xsd:string'>
+                                    <xsd:pattern value='{(.*?)}'/>
+                                  </xsd:restriction>
+                                </xsd:simpleType>
+                              </xsd:attribute>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name='Objects' minOccurs='1' maxOccurs='1'>
+                      <xsd:annotation>
+                        <xsd:documentation xml:lang='en-us'>List of objects in any order. It is common to start with index 1 in a linear strict order.</xsd:documentation>
+                      </xsd:annotation>
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name='Reduced' minOccurs='0' maxOccurs='1'/>
+                          <xsd:element name='Object' minOccurs='1' maxOccurs='unbounded'>
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name='PrimaryKey' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Source' type='SourceType' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Clarified' minOccurs='0' maxOccurs='1'>
+                                  <xsd:annotation>
+                                    <xsd:documentation xml:lang='en-us'>List of clarified objects.</xsd:documentation>
+                                  </xsd:annotation>
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name='Object' minOccurs='1' maxOccurs='unbounded'>
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name='Source' type='SourceType' minOccurs='0' maxOccurs='1'/>
+                                            <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+                                          </xsd:sequence>
+                                          <xsd:attributeGroup ref='DeclarationGroup'/>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name='ReIndexedByClarifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                                <xsd:element name='ReIndexedByReducing' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                              </xsd:sequence>
+                              <xsd:attributeGroup ref='DeclarationGroup'/>
+                              <xsd:attribute name='_0-generated' use='optional'>
+                                <xsd:simpleType>
+                                  <xsd:restriction base='xsd:string'>
+                                    <xsd:pattern value='{(.*?)}'/>
+                                  </xsd:restriction>
+                                </xsd:simpleType>
+                              </xsd:attribute>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name='Items' minOccurs='1' maxOccurs='1'>
+                <xsd:annotation>
+                  <xsd:documentation xml:lang='en-us'>List of context items. Context items can be defined in any order. It is useful to arrange context items by rows.</xsd:documentation>
+                </xsd:annotation>
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name='Reduced' minOccurs='0' maxOccurs='unbounded'>
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name='Objects' minOccurs='0' maxOccurs='1'>
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name='Object' minOccurs='1' maxOccurs='unbounded'/>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                          <xsd:element name='Attributes' minOccurs='0' maxOccurs='1'>
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name='Attribute' minOccurs='1' maxOccurs='unbounded'/>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name='Item' type='ContextItemType' minOccurs='1' maxOccurs='unbounded'/>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name='Status' use='optional'>
+              <xsd:annotation>
+                <xsd:documentation xml:lang='en-us'>
+                  Definition of context properties. A formal context is called a standard context if the context is clarified and reduced.
+                </xsd:documentation>
+              </xsd:annotation>
+              <xsd:simpleType>
+                <xsd:restriction base='xsd:string'>
+                  <xsd:enumeration value='Standard'/>
+                </xsd:restriction>
+              </xsd:simpleType>
+            </xsd:attribute>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name='Format' default='1.0.0.0'>
+        <xsd:annotation>
+          <xsd:documentation xml:lang='en-us'>This format version number is represented as a four-part string: Major version, minor version, build number and revision number.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base='xsd:string'>
+            <xsd:pattern value='(\d+\.){3}(\d+)'>
+            </xsd:pattern>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:complexType name='MemoType'>
+    <xsd:annotation>
+      <xsd:documentation xml:lang='en-us'>This field can be used for any information with references.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name='Text' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+      <xsd:element name='References' minOccurs='0' maxOccurs='1'>
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name='Reference' type='ReferenceType' minOccurs='1' maxOccurs='unbounded'>
+            </xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name='SourceType'>
+    <xsd:annotation>
+      <xsd:documentation xml:lang='en-us'>This field can be used for source code with references based on ISO 639.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name='Text' type='xsd:string' minOccurs='1' maxOccurs='1'/>
+      <xsd:element name='Remarks' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+      <xsd:element name='KeyWords' minOccurs='0' maxOccurs='1'>
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name='KeyWord' minOccurs='1' maxOccurs='unbounded'>
+              <xsd:complexType>
+                <xsd:sequence>
+                  <xsd:element name='PrimaryKey' type='xsd:string' minOccurs='1' maxOccurs='1'/>
+                  <xsd:element name='de' minOccurs='0' maxOccurs='1'>
+                    <xsd:simpleType>
+                      <xsd:restriction base='xsd:string'>
+                        <xsd:annotation>
+                          <xsd:documentation>Comma separated list of strings regardless of their contents.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:pattern value='(.+?)(?:,|$)'/>
+                      </xsd:restriction>
+                    </xsd:simpleType>
+                  </xsd:element>
+                </xsd:sequence>
+              </xsd:complexType>
+            </xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name='References' minOccurs='0' maxOccurs='1'>
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name='Reference' type='ReferenceType' minOccurs='1' maxOccurs='unbounded'>
+            </xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name ='ReferenceType'>
+    <xsd:sequence>
+      <xsd:element name='Authors' minOccurs='0' maxOccurs='1'>
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name='Author' type='xsd:string' minOccurs='1' maxOccurs='unbounded'/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name='Title' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+      <xsd:element name='Editor' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+      <xsd:element name='Publisher' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+      <xsd:element name='Year' type='xsd:gYear' minOccurs='0' maxOccurs='1'/>
+      <xsd:element name='Pages' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name='ContextItemType'>
+    <xsd:annotation>
+      <xsd:documentation xml:lang='en-us'>Describes a context item as a pair of object and attribute item with an index that defines the incidence relation according to the given formal context.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name='Object' minOccurs='1' maxOccurs='1'>
+        <xsd:annotation>
+          <xsd:documentation xml:lang='en-us'>Object item and its index.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+          <xsd:attribute name='Index' type='xsd:positiveInteger' use='required'/>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name='Attribute' minOccurs='1' maxOccurs='1'>
+        <xsd:annotation>
+          <xsd:documentation xml:lang='en-us'>Attribute item and its index.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+          <xsd:attribute name='Index' type='xsd:positiveInteger' use='required'/>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'>
+        <xsd:annotation>
+          <xsd:documentation xml:lang='en-us'>This field can be used for specific information.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name='Value' type='xsd:boolean' minOccurs='1' maxOccurs='1'>
+        <xsd:annotation>
+          <xsd:documentation xml:lang='en-us'>A true value means that the object has the attribute, otherwise false.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name='Arrow' use='optional'>
+      <xsd:simpleType>
+        <xsd:restriction base='xsd:string'>
+          <xsd:enumeration value='+'/>
+          <xsd:enumeration value='-'/>
+          <xsd:enumeration value='0'/>
+          <xsd:enumeration value='na'/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:attributeGroup name='DeclarationGroup'>
+    <xsd:annotation>
+      <xsd:documentation xml:lang='en-us'>An object and attribute declaration. For reasons of convenience attributes should have a label like 'a', 'b' etc.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name='Index' type='xsd:positiveInteger' use='required'/>
+    <xsd:attribute name='Label' type='xsd:string' use='optional'/>
+  </xsd:attributeGroup>
+</xsd:schema>

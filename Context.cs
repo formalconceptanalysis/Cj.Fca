@@ -112,7 +112,7 @@ namespace Cj.Fca
         }
 
         /// <summary>
-        /// Converts protocol strings to html.
+        /// Converts protocol strings to simple html page with fixed font face set to Courier New.
         /// </summary>
         /// <param name="Protocol">Text to be converted.</param>
         /// <param name="Title">Title of html page.</param>
@@ -120,9 +120,9 @@ namespace Cj.Fca
         /// <returns>Html text that can be shown by a browser.</returns>
         public static string[] ToHtml(string[] Protocol, string Title = "", bool Wrap = false)
         {
-            #region HTML // http://www.scriptingmaster.com/html/basic-structure-HTML-document.asp
+            #region HTML // http://www.w3schools.com
 
-            List<string> ToHtml = new List<string>(Protocol);
+            var ToHtml = new List<string>(Protocol);
 
             for (int i = 0; i < ToHtml.Count; i++)
                 ToHtml[i] = ToHtml[i] + "<br>";
@@ -145,6 +145,101 @@ namespace Cj.Fca
             #endregion
 
             return ToHtml.ToArray();
+        }
+
+        /// <summary>
+        /// Serializes an XML vector to a string representation. It can be used to convert extents and/or intents to a string object.
+        /// </summary>
+        /// <see cref="ToHtml(string[], string, bool)"/>
+        /// <param name="Items">Items to be converted to string representation.</param>
+        /// <param name="WithLabel">True if label should be written instead of index.</param>
+        /// <returns>Serialized XML item to string.</returns>
+        public static string ToString(XElement[] Items, bool WithLabel = false)
+        {
+            var ItemString = new StringBuilder();
+
+            ItemString.Append("{");
+
+            foreach (var Item in Items)
+            {
+                if (WithLabel && Item.Attribute("Label") != null)
+                    ItemString.Append($"{Item.Attribute("Label").Value},");
+                else
+                    ItemString.Append($"{Item.Attribute("Index").Value},");
+            }
+
+            if (ItemString.ToString().Last() == ',')
+                ItemString.Remove(ItemString.Length - 1, 1);
+
+            ItemString.Append("}");
+
+            return ItemString.ToString();
+        }
+
+        /// <summary>
+        /// Serializes an implication to a string representation. An implication consists of two sets where A' is a subset ob B'.
+        /// </summary>
+        /// <param name="Implication">Implication to be converted to string representation.</param>
+        /// <param name="WithSupport">Offers the fraction of objects where the intents which contain the union of A and B.</param>
+        /// <returns>Serialized XML tuple to string.</returns>
+        public static string ToString((XElement[] Left, XElement[] Right, XElement[] Support) Implication, bool WithSupport = false)
+        {
+            var sImplication = new StringBuilder();
+
+            if (WithSupport)
+                sImplication.Append($"<{Implication.Support.Length}> {Context.ToString(Implication.Support)}: ");
+
+            if (Implication.Left != null && Implication.Right != null)
+            {
+                if (WithSupport)
+                    sImplication.Append(" ");
+
+                sImplication.Append("{");
+
+                foreach (var Item in Implication.Left)
+                    if (Item.Attribute("Label") != null)
+                        sImplication.Append($"{Item.Attribute("Label").Value},");
+                    else
+                        sImplication.Append($"{Item.Attribute("Index").Value},");
+
+                if (sImplication.ToString().Last() == ',')
+                    sImplication.Remove(sImplication.Length - 1, 1);
+
+                sImplication.Append("} => {");
+
+                foreach (XElement Item in Implication.Right)
+                    if (Item.Attribute("Label") != null)
+                        sImplication.Append($"{Item.Attribute("Label").Value},");
+                    else
+                        sImplication.Append($"{Item.Attribute("Index").Value},");
+
+                if (sImplication.ToString().Last() == ',')
+                    sImplication.Remove(sImplication.Length - 1, 1);
+
+                if (2 <= sImplication.Length)
+                    sImplication.Append("}");
+            }
+
+            if (Implication.Left != null && Implication.Right == null)
+            {
+                if (WithSupport)
+                    sImplication.Append(" ");
+
+                sImplication.Append("{");
+
+                foreach (XElement Item in Implication.Left)
+                    if (Item.Attribute("Label") != null)
+                        sImplication.Append($"{Item.Attribute("Label").Value},");
+                    else
+                        sImplication.Append($"{Item.Attribute("Index").Value},");
+
+                if (sImplication.ToString().Last() == ',')
+                    sImplication.Remove(sImplication.Length - 1, 1);
+
+                sImplication.Append("} => ⊥");
+            }
+
+            return sImplication.ToString();
         }
 
         /// <summary>
@@ -184,19 +279,13 @@ namespace Cj.Fca
         /// Base uri will be set by constructor if XML file is read.
         /// </summary>
         /// <returns>Document uri belonging to formal context if exists.</returns>
-        public Uri DocumentUri()
-        {
-            return string.IsNullOrEmpty(ContextDocument?.BaseUri) ? null : new Uri(ContextDocument.BaseUri);
-        }
+        public Uri DocumentUri() => string.IsNullOrEmpty(ContextDocument?.BaseUri) ? null : new Uri(ContextDocument.BaseUri);
 
         /// <summary>
         /// Creates a deep copy of given context document.
         /// </summary>
         /// <returns>Returns a copy of the underlying XML document.</returns>
-        public XDocument GetContextDocument()
-        {
-            return ContextDocument != null ? new XDocument(ContextDocument) : null;
-        }
+        public XDocument GetContextDocument() => ContextDocument != null ? new XDocument(ContextDocument) : null;
 
         /// <summary>
         /// Computes all formal concepts of given context by naive algorithm, i.e., each item of the power set of
@@ -365,10 +454,7 @@ namespace Cj.Fca
         /// Checks whether context document is valid.
         /// </summary>
         /// <returns>Returns true if context document is valid, otherwise false.</returns>
-        public bool IsValid()
-        {
-            return (ContextDocument != null) ? true : false;
-        }
+        public bool IsValid() => ContextDocument != null ? true : false;
 
         /// <summary>
         /// Attribute declarations of given context document.
@@ -445,9 +531,10 @@ namespace Cj.Fca
         }
 
         /// <summary>
-        /// Converts the XML data structure of formal context to a HTML table.
+        /// Converts the XML data structure of formal context to an ASCII or HTML table.
         /// </summary>
-        /// <returns>Lines of a HTML document.</returns>
+        /// <param name="AsHtml">Should be true if html format is required otherwise false.</param>
+        /// <returns>Lines of ASCII or HTML document.</returns>
         public string[] CrossTable(bool AsHtml = false)
         {
             if (ContextDocument == null)

@@ -24,6 +24,121 @@
         <member name="F:Cj.Fca.Context.ItemKind.Object">
             <summary>Empty set is interpreted as an object item.</summary>
         </member>
+        <member name="T:Cj.Fca.Context.Status">
+            <summary>
+            Context manipulations which do not alter the structure of a concept lattice.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.None">
+            <summary>
+            The context status is unknown or not defined.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.ClarifiedByObject">
+            <summary>
+            The context is clarified by objects that means there are no duplicates of objects with the same intent.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.ClarifiedByAttribute">
+            <summary>
+            The context is clarified by attributes that means there are no duplicates of attributes with the same extent.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.Clarified">
+            <summary>
+            The context is clarified by objects and attributes.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.PurifiedByObject">
+            <summary>
+            The context is clarified, i. e. purified by an object that has all attributes.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.PurifiedByAttribute">
+            <summary>
+            The context is clarified, i. e. purified by an attribute that belongs to all objects.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.Purified">
+            <summary>
+            The context is clarified, i. e. purified by so called full rows and columns of a binary context.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.ReducedByObject">
+            <summary>
+            The context is reduced by reducible objects.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.ReducedByAttribute">
+            <summary>
+            The context is reduced by reducible attributes.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.Reduced">
+            <summary>
+            The context is reduced by reducible objects and reducible attributes.
+            </summary>
+        </member>
+        <member name="F:Cj.Fca.Context.Status.Standard">
+            <summary>
+            The context is clarified, purifed and reduced.
+            </summary>
+        </member>
+        <member name="T:Cj.Fca.Context.BinaryItem">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Cj.Fca.Context.BinaryItem.HorizontalRightAlignmentStyleByRowLabel">
+            <summary>
+            Is true if there is no row label defined and all row index values are treated as label.
+            </summary>
+        </member>
+        <member name="P:Cj.Fca.Context.BinaryItem.VerticalLeftRotationStyleByColumnLabel">
+            <summary>
+            Is true if there is a column label greater than one character. 
+            </summary>
+        </member>
+        <member name="P:Cj.Fca.Context.BinaryItem.HorizontalRightAlignmentStyleByRowMemo">
+            <summary>
+            Is null if there are not all row memos defined, otherweise false.
+            </summary>
+        </member>
+        <member name="P:Cj.Fca.Context.BinaryItem.VerticalLeftRotationStyleByColumnMemo">
+            <summary>
+            Is null if there are not all column memos defined and true if there is any column memo greater than one character, otherwise false. 
+            </summary>
+        </member>
+        <member name="P:Cj.Fca.Context.BinaryItem.Status">
+            <summary>
+            Status of binary context.
+            </summary>
+        </member>
+        <member name="P:Cj.Fca.Context.BinaryItem.Title">
+            <summary>
+            Title of formal context definition. The title is mandatory according to XSD format specification that is defined by <see cref="M:Cj.Fca.Context.XsdMarkup"/> as an embedded resource (Context.xsd).
+            </summary>
+        </member>
+        <member name="T:Cj.Fca.Context.BinaryItem.Incidence">
+            <summary>
+            Incidence relation is defined by row index as well as by column index.
+            </summary>
+        </member>
+        <member name="P:Cj.Fca.Context.BinaryItem.Incidence.Column">
+            <summary>
+            The index of column.
+            </summary>
+        </member>
+        <member name="P:Cj.Fca.Context.BinaryItem.Incidence.Row">
+            <summary>
+            The index of row.
+            </summary>
+        </member>
+        <member name="P:Cj.Fca.Context.BinaryItem.CurrentLabel">
+            <summary>
+            This property can be used to change the effective label by data bindings. The default is set to the label property.
+            </summary>
+        </member>
         <member name="F:Cj.Fca.Context.MaxDegreeOfParallelism">
             <summary>
             Set degree of parallelism to be used to find concepts concurrently.
@@ -101,7 +216,16 @@
             </summary>
             <returns>Returns a copy of the underlying XML document.</returns>
         </member>
-        <member name="M:Cj.Fca.Context.FindConceptsAsync(Cj.Fca.Context.ItemKind)">
+        <member name="M:Cj.Fca.Context.FindConceptsByIterationAsync(Cj.Fca.Context.ItemKind)">
+            <summary>
+            Computes all formal concepts of given context by iteration, i.e., every extent resp. intent is the intersection of
+            attribute extents resp. object intents.
+            </summary>
+            <param name="Kind">The kind parameter is used to start the computation over attributes or objects. If
+            set to generic, the computation starts with the smallest size of given context items.</param>
+            <returns>List of concepts according to their order of computation.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.FindConceptsByPowerSetAsync(Cj.Fca.Context.ItemKind)">
             <summary>
             Computes all formal concepts of given context by naive algorithm, i.e., each item of the power set of
             attribute or object items is checked with the help of the derivation operator whether A = A'' is true.
@@ -110,7 +234,7 @@
             set to generic, the computation starts with the smallest size of given context items.</param>
             <returns>Sorted list of concepts.</returns>
         </member>
-        <member name="M:Cj.Fca.Context.FindConceptsParallel(System.Threading.CancellationTokenSource,Cj.Fca.Context.ItemKind)">
+        <member name="M:Cj.Fca.Context.FindConceptsByPowerSetParallel(System.Threading.CancellationTokenSource,Cj.Fca.Context.ItemKind)">
             <summary>
             Computes all formal concepts of given context by naive algorithm concurrently, i.e., each item of the power set of
             attribute or object items is checked with the help of the derivation operator whether A = A'' is true.
@@ -120,11 +244,24 @@
             set to generic, the computation starts with the smallest size of given context items.</param>
             <returns>Sorted list of concepts.</returns>
         </member>
+        <member name="M:Cj.Fca.Context.ClarifyContextAsync(Cj.Fca.Context.Status)">
+            <summary>
+            Attributes with the same extent and/or objects with the same intent will be merged. This kind of context manipulation
+            does not alter the structure of the concept lattice.
+            </summary>
+            <returns>The clarified context.</returns>
+        </member>
         <member name="M:Cj.Fca.Context.IsValid">
             <summary>
             Checks whether context document is valid.
             </summary>
             <returns>Returns true if context document is valid, otherwise false.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.GetTitle">
+            <summary>
+            Title of context document that is required by XML schema.
+            </summary>
+            <returns>Title of context document.</returns>
         </member>
         <member name="M:Cj.Fca.Context.GetAttributes">
             <summary>
@@ -164,12 +301,61 @@
             <param name="Index">Index to be set in the range from 1 to n.</param>
             <returns>Returns the column that consists of all rows in an ascending order of row index that belong to the row position.</returns>
         </member>
-        <member name="M:Cj.Fca.Context.CrossTable(System.Boolean)">
+        <member name="M:Cj.Fca.Context.AttributeConcept(System.Int32)">
+            <summary>
+            Computes an attribute concept.
+            </summary>
+            <param name="Index">Index of an attribute starting from 1 to n.</param>
+            <returns>Returns attribute concept that belongs to given attribute index.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.ObjectConcept(System.Int32)">
+            <summary>
+            Computes an object concept.
+            </summary>
+            <param name="Index">Index of an object starting from 1 to n.</param>
+            <returns>Returns object concept that belongs to given object index.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.ToStringArray(System.Boolean)">
             <summary>
             Converts the XML data structure of formal context to an ASCII or HTML table.
             </summary>
             <param name="AsHtml">Should be true if html format is required otherwise false.</param>
             <returns>Lines of ASCII or HTML document.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.IsStandard">
+            <summary>
+            A standard context is clarified, purified and reduced by objects and attributes.
+            </summary>
+            <returns>Returns true if the context status is valid.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.ClarifyObjects">
+            <summary>
+            This function merges objects with the same intent.
+            </summary>
+        </member>
+        <member name="M:Cj.Fca.Context.ClarifyAttributes">
+            <summary>
+            This function merges attributes with the same extent.
+            </summary>
+        </member>
+        <member name="M:Cj.Fca.Context.IsClarifiedByAttribute">
+            <summary>
+            Determines whether the current context is clarified by attribute. 
+            </summary>
+            <returns>Returns true if the given status is valid.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.IsClarifiedByObject">
+            <summary>
+            Determines whether the current context is clarified by object. 
+            </summary>
+            <returns>Returns true if the given status is valid.</returns>
+        </member>
+        <member name="M:Cj.Fca.Context.IsClarified(Cj.Fca.Context.Status)">
+            <summary>
+            Determines whether the current context is clarified. 
+            </summary>
+            <param name="StatusToBeChecked">The status that is to be checked for the given context.</param>
+            <returns>Returns true if the given status is valid.</returns>
         </member>
     </members>
 </doc>

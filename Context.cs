@@ -22,7 +22,7 @@ namespace Cj.Fca
         /// <summary>
         /// Defines the kind of context items for the well defined context document.
         /// </summary>
-        public enum ItemKind
+        public enum ItemKind : byte
         {
             ///<summary>Set is interpreted as an object or attribute belonging to given item.</summary>
             Generic = 0,
@@ -32,6 +32,203 @@ namespace Cj.Fca
 
             ///<summary>Empty set is interpreted as an object item.</summary>
             Object = 2
+        }
+
+        /// <summary>
+        /// Context manipulations which do not alter the structure of a concept lattice.
+        /// </summary>
+        [Flags]
+        public enum Status : int
+        {
+            /// <summary>
+            /// The context status is unknown or not defined.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// The context is clarified by objects that means there are no duplicates of objects with the same intent.
+            /// </summary>
+            ClarifiedByObject = 1,
+
+            /// <summary>
+            /// The context is clarified by attributes that means there are no duplicates of attributes with the same extent.
+            /// </summary>
+            ClarifiedByAttribute = 2,
+
+            /// <summary>
+            /// The context is clarified by objects and attributes.
+            /// </summary>
+            Clarified = ClarifiedByObject | ClarifiedByAttribute,
+
+            /// <summary>
+            /// The context is clarified, i. e. purified by an object that has all attributes.
+            /// </summary>
+            PurifiedByObject = 4,
+
+            /// <summary>
+            /// The context is clarified, i. e. purified by an attribute that belongs to all objects.
+            /// </summary>
+            PurifiedByAttribute = 8,
+
+            /// <summary>
+            /// The context is clarified, i. e. purified by so called full rows and columns of a binary context.
+            /// </summary>
+            Purified = PurifiedByObject | PurifiedByAttribute,
+
+            /// <summary>
+            /// The context is reduced by reducible objects.
+            /// </summary>
+            ReducedByObject = 16,
+
+            /// <summary>
+            /// The context is reduced by reducible attributes.
+            /// </summary>
+            ReducedByAttribute = 32,
+
+            /// <summary>
+            /// The context is reduced by reducible objects and reducible attributes.
+            /// </summary>
+            Reduced = ReducedByObject | ReducedByAttribute,
+
+            /// <summary>
+            /// The context is clarified, purifed and reduced.
+            /// </summary>
+            Standard = Clarified | Purified | Reduced
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public class BinaryItem
+        {
+            /// <summary>
+            /// Is true if there is no row label defined and all row index values are treated as label.
+            /// </summary>
+            public static bool HorizontalRightAlignmentByRowLabelEnabled { get; set; } = false;
+
+            /// <summary>
+            /// Is true if there is a column label greater than one character. 
+            /// </summary>
+            public static bool VerticalLeftRotationByColumnLabelEnabled { get; set; } = false;
+
+            /// <summary>
+            /// Is null if there are not all row memos defined, otherwise false.
+            /// </summary>
+            public static bool? HorizontalRightAlignmentByRowMemoEnabled { get; set; } = null;
+
+            /// <summary>
+            /// Is null if there are not all column memos defined and true if there is any column memo greater than one character, otherwise false. 
+            /// </summary>
+            public static bool? VerticalLeftRotationByColumnMemoEnabled { get; set; } = null;
+
+            /// <summary>
+            /// Status of binary context.
+            /// </summary>
+            public static Status Status { get; set; } = Status.None;
+
+            /// <summary>
+            /// Title of formal context definition. The title is mandatory according to XSD format specification that is defined by <see cref="Cj.Fca.Context.XsdMarkup"/> as an embedded resource (Context.xsd).
+            /// </summary>
+            public static string Title { get; set; } = null;
+
+            /// <summary>
+            /// Incidence relation is defined by row and column index.
+            /// </summary>
+            public class Incidence
+            {
+                /// <summary>
+                /// The index of column.
+                /// </summary>
+                public int Column { get; set; }
+
+                /// <summary>
+                /// The index of row.
+                /// </summary>
+                public int Row { get; set; }
+            }
+
+            /// <summary>
+            /// Row and column label of incidence releation.
+            /// </summary>
+            public class Labels
+            {
+                /// <summary>
+                /// Column labels are defined by attribute labels.
+                /// </summary>
+                public string Column { get; set; }
+
+                /// <summary>
+                /// Row labels are defined by object labels.
+                /// </summary>
+                public string Row { get; set; }
+            }
+
+            /// <summary>
+            /// Row and column memo of incidence releation.
+            /// </summary>
+            public class Memos
+            {
+                /// <summary>
+                /// Column memos are defined by attribute memos.
+                /// </summary>
+                public string Column { get; set; }
+
+                /// <summary>
+                /// Row memos are defined by object memos.
+                /// </summary>
+                public string Row { get; set; }
+            }
+
+            /// <summary>
+            /// Contains clarified, purified or reduced items.
+            /// </summary>
+            public class RedundancyItems
+            {
+                /// <summary>
+                /// List of attributes of given context.
+                /// </summary>
+                public string[] Attributes { get; set; }
+
+                /// <summary>
+                /// List of objects of given context.
+                /// </summary>
+                public string[] Objects { get; set; }
+            }
+
+            /// <summary>
+            /// Pair of column and row index.
+            /// </summary>
+            public Incidence Index { get; set; }
+
+            /// <summary>
+            /// Pair of column and row memo.
+            /// </summary>
+            public Memos Memo { get; set; }
+
+            /// <summary>
+            /// Pair of column and row label.
+            /// </summary>
+            public Labels Label { get; set; }
+
+            /// <summary>
+            /// This property can be used to change the effective label by data bindings. The default is set to the label property.
+            /// </summary>
+            public Labels LabelView { get; set; }
+
+            /// <summary>
+            /// Pair of clarified items.
+            /// </summary>
+            public RedundancyItems ClarifiedBy { get; set; }
+
+            /// <summary>
+            /// The binary context value of an item.
+            /// </summary>
+            public bool Value { get; set; }
+
+            /// <summary>
+            /// The arrow relation indicator in the range of -1, 0, +1, and null (non applicable). 
+            /// </summary>
+            public int? ArrowRelation { get; set; }
         }
 
         /// <summary>
@@ -64,9 +261,7 @@ namespace Cj.Fca
         {
             Protocol = string.Empty;
 
-            Context Ctx = new Context(out Protocol, XmlData);
-
-            return string.IsNullOrEmpty(Protocol) ? true : false;
+            return new Context(out Protocol, XmlData) != null && string.IsNullOrEmpty(Protocol) ? true : false;
         }
 
         /// <summary>
@@ -76,7 +271,7 @@ namespace Cj.Fca
         public static XDocument CreateStandardContextWithTwoElements()
         {
             /*
-               An illustration of the given standard formal context with two elements:
+               An illustration of the given standard formal context with two elements of objects (1, 2) and attributes (a, b):
 
                | - || a || b |
                | 1 || X ||   |
@@ -147,6 +342,11 @@ namespace Cj.Fca
             return ToHtml.ToArray();
         }
 
+        public static string[] ToJson(Context.BinaryItem[,] BinaryContext)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Serializes an XML vector to a string representation. It can be used to convert extents and/or intents to a string object.
         /// </summary>
@@ -207,7 +407,7 @@ namespace Cj.Fca
 
                 sImplication.Append("} => {");
 
-                foreach (XElement Item in Implication.Right)
+                foreach (var Item in Implication.Right)
                     if (Item.Attribute("Label") != null)
                         sImplication.Append($"{Item.Attribute("Label").Value},");
                     else
@@ -227,7 +427,7 @@ namespace Cj.Fca
 
                 sImplication.Append("{");
 
-                foreach (XElement Item in Implication.Left)
+                foreach (var Item in Implication.Left)
                     if (Item.Attribute("Label") != null)
                         sImplication.Append($"{Item.Attribute("Label").Value},");
                     else
@@ -279,7 +479,7 @@ namespace Cj.Fca
         /// Base uri will be set by constructor if XML file is read.
         /// </summary>
         /// <returns>Document uri belonging to formal context if exists.</returns>
-        public Uri DocumentUri() => string.IsNullOrEmpty(ContextDocument?.BaseUri) ? null : new Uri(ContextDocument.BaseUri);
+        public Uri DocumentUri() => string.IsNullOrEmpty(ContextDocument?.BaseUri) ? null : new Uri(ContextDocument.BaseUri ?? "");
 
         /// <summary>
         /// Creates a deep copy of given context document.
@@ -288,13 +488,97 @@ namespace Cj.Fca
         public XDocument GetContextDocument() => ContextDocument != null ? new XDocument(ContextDocument) : null;
 
         /// <summary>
+        /// Computes all formal concepts of given context by iteration, i.e., every extent resp. intent is the intersection of
+        /// attribute extents resp. object intents.
+        /// </summary>
+        /// <param name="Kind">The kind parameter is used to start the computation over attributes or objects. If
+        /// set to generic, the computation starts with the smallest size of given context items.</param>
+        /// <returns>List of concepts according to their order of computation.</returns>
+        public async Task<(XElement[] Extent, XElement[] Intent)[]> FindConceptsByIterationAsync(ItemKind Kind = ItemKind.Generic)
+        {
+            return await Task.Run(() =>
+            {
+                var Concepts = new List<(XElement[] Extent, XElement[] Intent)>();
+
+                if (Assert() is false)
+                    return Concepts.ToArray();
+
+                if (Kind == ItemKind.Attribute || (Kind == ItemKind.Generic && GetAttributes().Length <= GetObjects().Length))
+                {
+                    Concepts.Add(new ValueTuple<XElement[], XElement[]>(GetObjects(), Prime(GetObjects(), ItemKind.Object)));
+
+                    for (int Index = 1; Index <= GetAttributes().Length; Index++)
+                    {
+                        XElement[] A = Prime(GetAttributes(Index), ItemKind.Attribute); // attribute extent
+
+                        for (int j = 0; j < Concepts.Count(); j++)
+                        {
+                            XElement[] Extent = Concepts[j].Extent.OrderBy(x => x.Element("Object"), new XElementComparer()).Intersect(A.OrderBy(x => x.Element("Object"), new XElementComparer()), new XElementEqualityComparer()).OrderBy(x => x.Element("Object"), new XElementComparer()).ToArray();
+
+                            bool Found = false;
+
+                            foreach ((XElement[] Extent, XElement[] Intent) Concept in Concepts)
+                            {
+                                if (ToBinaryValue(Extent, ItemKind.Object) == ToBinaryValue(Concept.Extent, ItemKind.Object))
+                                {
+                                    Found = true; break;
+                                }
+                            }
+
+                            if (Found is false)
+                            {
+                                Concepts.Add(new ValueTuple<XElement[], XElement[]>(Extent, Prime(Extent, ItemKind.Object)));
+
+                                j = -1;
+                            }
+                        }
+                    }
+                }
+
+                if (Kind == ItemKind.Object || (Kind == ItemKind.Generic && GetAttributes().Length > GetObjects().Length))
+                {
+                    Concepts.Add(new ValueTuple<XElement[], XElement[]>(Prime(GetAttributes(), ItemKind.Attribute), GetAttributes()));
+
+                    for (int Index = 1; Index <= GetObjects().Length; Index++)
+                    {
+                        XElement[] B = Prime(GetObjects(Index), ItemKind.Object); // object intent
+
+                        for (int j = 0; j < Concepts.Count(); j++)
+                        {
+                            XElement[] Intent = Concepts[j].Intent.OrderBy(x => x.Element("Attribute"), new XElementComparer()).Intersect(B.OrderBy(x => x.Element("Attribute"), new XElementComparer()), new XElementEqualityComparer()).OrderBy(x => x.Element("Attribute"), new XElementComparer()).ToArray();
+
+                            bool Found = false;
+
+                            foreach ((XElement[] Extent, XElement[] Intent) Concept in Concepts)
+                            {
+                                if (ToBinaryValue(Intent, ItemKind.Attribute) == ToBinaryValue(Concept.Intent, ItemKind.Attribute))
+                                {
+                                    Found = true; break;
+                                }
+                            }
+
+                            if (Found is false)
+                            {
+                                Concepts.Add(new ValueTuple<XElement[], XElement[]>(Prime(Intent, ItemKind.Attribute), Intent));
+
+                                j = -1;
+                            }
+                        }
+                    }
+                }
+
+                return Concepts.ToArray();
+            });
+        }
+
+        /// <summary>
         /// Computes all formal concepts of given context by naive algorithm, i.e., each item of the power set of
         /// attribute or object items is checked with the help of the derivation operator whether A = A'' is true.
         /// </summary>
         /// <param name="Kind">The kind parameter is used to start the computation over attributes or objects. If
         /// set to generic, the computation starts with the smallest size of given context items.</param>
         /// <returns>Sorted list of concepts.</returns>
-        public async Task<(XElement[] Extent, XElement[] Intent)[]> FindConceptsAsync(ItemKind Kind = ItemKind.Generic)
+        public async Task<(XElement[] Extent, XElement[] Intent)[]> FindConceptsByPowerSetAsync(ItemKind Kind = ItemKind.Generic)
         {
             return await Task.Run(() =>
             {
@@ -349,7 +633,7 @@ namespace Cj.Fca
         /// <param name="Kind">The kind parameter is used to start the computation over attributes or objects. If
         /// set to generic, the computation starts with the smallest size of given context items.</param>
         /// <returns>Sorted list of concepts.</returns>
-        public async Task<(XElement[] Extent, XElement[] Intent)[]> FindConceptsParallel(CancellationTokenSource Cancellation, ItemKind Kind = ItemKind.Generic)
+        public async Task<(XElement[] Extent, XElement[] Intent)[]> FindConceptsByPowerSetParallel(CancellationTokenSource Cancellation, ItemKind Kind = ItemKind.Generic)
         {
             return await Task.Run(() =>
             {
@@ -451,10 +735,50 @@ namespace Cj.Fca
         }
 
         /// <summary>
+        /// Attributes with the same extent and/or objects with the same intent will be merged. This kind of context manipulation
+        /// does not alter the structure of the concept lattice.
+        /// </summary>
+        /// <returns>The clarified context.</returns>
+        public async Task<Context> ClarifyContextAsync(Status CheckStatus = Status.Clarified)
+        {
+            return await Task.Run(() =>
+            {
+                var ClarifiedContext = new Context(ContextDocument?.Root);
+
+                if (!Assert())
+                    return ClarifiedContext;
+
+                if (IsClarified(CheckStatus))
+                    return ClarifiedContext;
+
+                #region Clarify identical items
+
+                if ((CheckStatus & Status.ClarifiedByObject) != 0)
+                    ClarifiedContext.ClarifyObjects();
+
+                if ((CheckStatus & Status.ClarifiedByAttribute) != 0)
+                    ClarifiedContext.ClarifyAttributes();
+
+                #endregion
+
+                return ClarifiedContext;
+            });
+        }
+
+        /// <summary>
         /// Checks whether context document is valid.
         /// </summary>
         /// <returns>Returns true if context document is valid, otherwise false.</returns>
         public bool IsValid() => ContextDocument != null ? true : false;
+
+        /// <summary>
+        /// Title of context document that is required by XML schema.
+        /// </summary>
+        /// <returns>Title of context document.</returns>
+        public string GetTitle()
+        {
+            return ContextDocument?.Element("Data")?.Element("Header")?.Element("Title")?.Value ?? string.Empty;
+        }
 
         /// <summary>
         /// Attribute declarations of given context document.
@@ -531,11 +855,98 @@ namespace Cj.Fca
         }
 
         /// <summary>
+        /// Computes an attribute concept.
+        /// </summary>
+        /// <param name="Index">Index of an attribute starting from 1 to n.</param>
+        /// <returns>Returns attribute concept that belongs to given attribute index.</returns>
+        public (XElement[] Extent, XElement[] Intent) AttributeConcept(int Index)
+        {
+            var Attribute = ContextDocument?.Element("Data").Element("Context").Element("Declarations").Element("Attributes").Elements("Attribute").Where(i => int.Parse(i.Attribute("Index").Value) == Index).Single();
+
+            return (Prime(ToEnumerable(Attribute).ToArray(), ItemKind.Attribute), Prime(Prime(ToEnumerable(Attribute).ToArray(), ItemKind.Attribute), ItemKind.Object));
+        }
+
+        /// <summary>
+        /// Computes an object concept.
+        /// </summary>
+        /// <param name="Index">Index of an object starting from 1 to n.</param>
+        /// <returns>Returns object concept that belongs to given object index.</returns>
+        public (XElement[] Extent, XElement[] Intent) ObjectConcept(int Index)
+        {
+            var Object = ContextDocument?.Element("Data").Element("Context").Element("Declarations").Element("Objects").Elements("Object").Where(i => int.Parse(i.Attribute("Index").Value) == Index).Single();
+
+            return (Prime(Prime(ToEnumerable(Object).ToArray(), ItemKind.Object), ItemKind.Attribute), Prime(ToEnumerable(Object).ToArray(), ItemKind.Object));
+        }
+
+        /// <summary>
+        /// This function extracts the formal context data from the given XML document to a memory representation that can be used to bound the data to a view.
+        /// </summary>
+        /// <returns>Binary context of given formal context.</returns>
+        public Context.BinaryItem[,] ExtractBinaryContext()
+        {
+            BinaryItem[,] Items = new BinaryItem[GetObjects().Length, GetAttributes().Length];
+
+            for (int i = 0; i < GetObjects().Length; i++)
+                for (int j = 0; j < GetAttributes().Length; j++)
+                    Items[i, j] = ExtractBinaryItem(i + 1, j + 1); // Treat index as label if no specific label is defined 
+
+            #region Check labels
+
+            BinaryItem.HorizontalRightAlignmentByRowLabelEnabled = GetObjects().All(i => string.IsNullOrEmpty(i.Attribute("Label")?.Value));
+
+            BinaryItem.VerticalLeftRotationByColumnLabelEnabled = Enumerable.Range(0, Items.GetLength(1)).Select(x => Items[0, x].Label.Column).Any(x => x.Length > 1);
+
+            #endregion
+
+            #region Check memos
+
+            if (GetObjects().Any(i => string.IsNullOrEmpty(i.Element("Memo")?.Element("Text")?.Value)))
+                BinaryItem.HorizontalRightAlignmentByRowMemoEnabled = null;
+            else
+                BinaryItem.HorizontalRightAlignmentByRowMemoEnabled = false;
+
+            if (GetAttributes().Any(i => string.IsNullOrEmpty(i.Element("Memo")?.Element("Text")?.Value)))
+                BinaryItem.VerticalLeftRotationByColumnMemoEnabled = null;
+            else
+                BinaryItem.VerticalLeftRotationByColumnMemoEnabled = GetAttributes().Any(i => i.Element("Memo")?.Element("Text")?.Value.Length > 1);
+
+            #endregion
+
+            BinaryItem.Title = GetTitle();
+
+            BinaryItem.Status = Status.None;
+
+            if (IsClarifiedByObject())
+                BinaryItem.Status = BinaryItem.Status | Status.ClarifiedByObject;
+
+            if (IsClarifiedByAttribute())
+                BinaryItem.Status = BinaryItem.Status | Status.ClarifiedByAttribute;
+
+            return Items;
+        }
+
+        /// <summary>
+        /// A binary row with respect to the given context data by means of the set of objects.
+        /// </summary>
+        /// <param name="Data">Formal context definition.</param>
+        /// <param name="Index">The 1-based index of row.</param>
+        /// <returns>A binary row with respect to the given context data.</returns>
+        public static Context.BinaryItem[] BinaryRow(Context.BinaryItem[,] Data, int Index) => Enumerable.Range(0, Data.GetLength(1)).Select(x => Data[Index - 1, x]).ToArray();
+
+        /// <summary>
+        /// A binary column with respect to the given context data by means of the set of attributes.
+        /// </summary>
+        /// <param name="Data">Formal context definition.</param>
+        /// <param name="Index">The 1-based index of column.</param>
+        /// <returns>A binary column with respect to the given context data.</returns>
+        public static Context.BinaryItem[] BinaryColumn(Context.BinaryItem[,] Data, int Index) => Enumerable.Range(0, Data.GetLength(0)).Select(x => Data[x, Index - 1]).ToArray();
+
+        /// <summary>
         /// Converts the XML data structure of formal context to an ASCII or HTML table.
         /// </summary>
         /// <param name="AsHtml">Should be true if html format is required otherwise false.</param>
         /// <returns>Lines of ASCII or HTML document.</returns>
-        public string[] CrossTable(bool AsHtml = false)
+        public string[] ToStringArray(bool AsHtml = false)
         {
             if (ContextDocument == null)
                 return Array.Empty<string>();
@@ -624,6 +1035,198 @@ namespace Cj.Fca
             }
         }
 
+        /// <summary>
+        /// Computes arrow relations of the given context.
+        /// </summary>
+        /// <returns>False if the given context is not at least clarified.</returns>
+        public bool ComputeArrowRelations()
+        {
+            if (!IsClarified()) // Current context must be clarified by objects and attributes.
+                return false;
+
+            var AttributeConcepts = new Dictionary<int, (XElement[] Extent, XElement[] Intent)>();
+
+            var ObjectConcepts = new Dictionary<int, (XElement[] Extent, XElement[] Intent)>();
+
+            int Objects = GetObjects().Length;
+
+            for (int i = 1; i <= Objects; i++) // Traverse through the context
+            {
+                XElement[] Row = this.Row(i);
+
+                if (Row.Any())
+                {
+                    int Attributes = GetAttributes().Length;
+
+                    (XElement[] Extent, XElement[] Intent) ObjectConcept;
+
+                    if (false == ObjectConcepts.TryGetValue(i, out ObjectConcept))
+                    {
+                        ObjectConcept = this.ObjectConcept(i);
+
+                        ObjectConcepts.Add(i, ObjectConcept);
+                    }
+
+                    for (int j = 1; j <= Attributes; j++)
+                    {
+                        XElement[] Column = this.Column(j);
+
+                        if (Column.Any())
+                        {
+                            int k = 0;
+
+                            while (k < Row.Length)
+                            {
+                                if (j == int.Parse(Row[k].Element("Attribute").Attribute("Index").Value))
+                                {
+                                    if (bool.Parse(Row[k].Element("Value").Value) is false)
+                                    {
+                                        (XElement[] Extent, XElement[] Intent) AttributeConcept;
+
+                                        if (false == AttributeConcepts.TryGetValue(j, out AttributeConcept))
+                                        {
+                                            AttributeConcept = this.AttributeConcept(j);
+
+                                            AttributeConcepts.Add(j, AttributeConcept);
+                                        }
+
+                                        if (Row[k].Attribute("Arrow") is null)
+                                            Row[k].Add(new XAttribute("Arrow", ArrowRelation(Row[k], AttributeConcept, ObjectConcept)));
+                                        else
+                                            Row[k].Attribute("Arrow").SetValue(ArrowRelation(Row[k], AttributeConcept, ObjectConcept));
+                                    }
+
+                                    break;
+                                }
+
+                                k++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+
+            string ArrowRelation(XElement Item, (XElement[] Extent, XElement[] Intent) AttributeConceptByCell, (XElement[] Extent, XElement[] Intent) ObjectConceptByCell)
+            {
+                bool? pArrow = null;
+                bool? nArrow = null;
+
+                for (int i = 1; i <= GetAttributes().Length; i++)
+                {
+                    XElement[] Column = this.Column(i);
+
+                    if (Column.Any())
+                    {
+                        (XElement[] Extent, XElement[] Intent) AttributeConcept;
+
+                        if (false == AttributeConcepts.TryGetValue(i, out AttributeConcept))
+                        {
+                            AttributeConcept = this.AttributeConcept(i);
+
+                            AttributeConcepts.Add(i, AttributeConcept);
+                        }
+
+                        if (IsProperSubset(AttributeConceptByCell.Extent, AttributeConcept.Extent))
+                        {
+                            var Extent = new SortedSet<XElement>(AttributeConcept.Extent, new XElementComparer());
+
+                            if (Extent.Contains(Item.Element("Object")))
+                            {
+                                pArrow = true;
+                            }
+                            else
+                            {
+                                pArrow = false;
+
+                                break;
+                            }
+
+                        }
+                    }
+                }
+
+                for (int i = 1; i <= GetObjects().Length; i++)
+                {
+                    XElement[] Row = this.Row(i);
+
+                    if (Row.Any())
+                    {
+                        (XElement[] Extent, XElement[] Intent) ObjectConcept;
+
+                        if (false == ObjectConcepts.TryGetValue(i, out ObjectConcept))
+                        {
+                            ObjectConcept = this.ObjectConcept(i);
+
+                            ObjectConcepts.Add(i, ObjectConcept);
+                        }
+
+                        if (IsProperSubset(ObjectConceptByCell.Intent, ObjectConcept.Intent))
+                        {
+                            var Intent = new SortedSet<XElement>(ObjectConcept.Intent, new XElementComparer());
+
+                            if (Intent.Contains(Item.Element("Attribute")))
+                            {
+                                nArrow = true;
+                            }
+                            else
+                            {
+                                nArrow = false;
+
+                                break;
+                            }
+
+                        }
+                    }
+                }
+
+                if (pArrow == null || (pArrow != null && pArrow == true))
+                {
+                    if (nArrow == null || (nArrow != null && nArrow == true))
+                        return "0";
+                    else
+                        return "+";
+                }
+
+                if (nArrow == null || (nArrow != null && nArrow == true))
+                {
+                    if (pArrow == null || (pArrow != null && pArrow == true))
+                        return "0";
+                    else
+                        return "-";
+                }
+
+                return "na";
+
+                bool IsProperSubset(XElement[] L, XElement[] R)
+                {
+                    var _L = new SortedSet<XElement>(L, new XElementComparer());
+                    var _R = new SortedSet<XElement>(R, new XElementComparer());
+
+                    if (_L.IsProperSubsetOf(_R)) return true;
+                    else return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes arrow relations of the given context.
+        /// </summary>
+        public void ClearArrows()
+        {
+            if (Assert() is false)
+                return;
+
+            var Items = ContextDocument?.Element("Data").Element("Context").Element("Items").Elements("Item");
+
+            if (Items == null)
+                return;
+
+            foreach (XElement Item in Items)
+                Item.Attribute("Arrow")?.Remove();
+        }
+
         private Context(out string Protocol, string XmlFile)
         {
             Protocol = string.Empty;
@@ -651,6 +1254,43 @@ namespace Cj.Fca
                 ContextDocument = null;
         }
 
+        private Context.BinaryItem ExtractBinaryItem(int RowIndex, int ColumnIndex) => new Context.BinaryItem()
+        {
+            Index = new Context.BinaryItem.Incidence()
+            {
+                Row = RowIndex,
+                Column = ColumnIndex
+            },
+
+            Label = new Context.BinaryItem.Labels()
+            {
+                Row = GetObjects(RowIndex).First().Attribute("Label")?.Value ?? RowIndex.ToString(),
+                Column = GetAttributes(ColumnIndex).First().Attribute("Label")?.Value ?? ColumnIndex.ToString()
+            },
+
+            LabelView = new Context.BinaryItem.Labels()
+            {
+                Row = GetObjects(RowIndex).First().Attribute("Label")?.Value ?? RowIndex.ToString(),
+                Column = GetAttributes(ColumnIndex).First().Attribute("Label")?.Value ?? ColumnIndex.ToString()
+            },
+
+            Memo = new Context.BinaryItem.Memos()
+            {
+                Row = GetObjects(RowIndex).First().Element("Memo")?.Element("Text")?.Value ?? string.Empty,
+                Column = GetAttributes(ColumnIndex).First().Element("Memo")?.Element("Text")?.Value ?? string.Empty
+            },
+
+            ClarifiedBy = new BinaryItem.RedundancyItems()
+            {
+                Objects = GetObjects(RowIndex).First().Element("Clarified")?.Elements("Object").Select(i => i.Attribute("Label") != null ? i.Attribute("Label").Value : i.Attribute("Index").Value).ToArray(),
+                Attributes = GetAttributes(ColumnIndex).First().Element("Clarified")?.Elements("Attribute").Select( i => i.Attribute("Label") != null ? i.Attribute("Label").Value : i.Attribute("Index").Value ).ToArray()
+            },
+
+            Value = bool.Parse(Row(RowIndex)[ColumnIndex - 1].Element("Value").Value),
+
+            ArrowRelation = EncodeArrowRelation(RowIndex, ColumnIndex)
+        };
+
         private static bool Validate(out string Protocol, Context Document)
         {
             var SchemaSet = new XmlSchemaSet();
@@ -672,6 +1312,398 @@ namespace Cj.Fca
             return string.IsNullOrEmpty(Protocol) ? true : false;
         }
 
+        /// <summary>
+        /// A standard context is clarified, purified and reduced by objects and attributes.
+        /// </summary>
+        /// <returns>Returns true if the context status is valid.</returns>
+        private bool IsStandard()
+        {
+            if (!Assert())
+                return false;
+
+            if (ContextDocument?.Element("Data").Element("Context").Attribute("Status")?.Value == "Standard")
+                return true;
+            else
+                return false;
+        }
+
+        private int? EncodeArrowRelation(int RowIndex, int ColumnIndex)
+        {
+            string Arrow = Row(RowIndex)[ColumnIndex - 1].Attribute("Arrow")?.Value ?? string.Empty;
+
+            if (Arrow == "+") return +1;
+                else if (Arrow == "-") return -1;
+                        else if (Arrow == "0") return 0;
+                                else return null;
+        }
+
+        /// <summary>
+        /// This function merges objects with the same intent.
+        /// </summary>
+        private void ClarifyObjects()
+        {
+            if (IsClarifiedByObject())
+                return;
+
+            #region Register XML property
+
+            if (ContextDocument.Element("Data").Element("Context").Element("Clarified") == null)
+                ContextDocument.Element("Data").Element("Context").AddFirst(new XElement("Clarified"));
+
+            if (ContextDocument.Element("Data").Element("Context").Element("Clarified").Attribute("ByObject") == null)
+                ContextDocument.Element("Data").Element("Context").Element("Clarified").Add(new XAttribute("ByObject", bool.TrueString.ToLower()));
+            else
+                ContextDocument.Element("Data").Element("Context").Element("Clarified").Attribute("ByObject").SetValue(bool.TrueString.ToLower());
+
+            #endregion
+
+            int Items = GetObjects().Length;
+
+            for (int i = 1; i <= Items; i++)
+            {
+                XElement[] RowRef = Row(i);
+
+                if (RowRef.Any())
+                {
+                    for (int j = i + 1; j <= Items; j++)
+                    {
+                        XElement[] RowCmp = Row(j);
+
+                        if (RowCmp.Any())
+                        {
+                            int k = 0;
+
+                            while (k < RowRef.Length)
+                            {
+                                if (bool.Parse(RowRef[k].Element("Value").Value) != bool.Parse(RowCmp[k].Element("Value").Value))
+                                    break;
+
+                                k++;
+                            }
+
+                            if (k == RowRef.Length)
+                                ClarifyObjectAt(i, j);
+                        }
+                    }
+                }
+            }
+
+            XNode xOuterNode;
+
+            // Replace and remove certain objects in reverse order after removable objects have been marked
+            xOuterNode = ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Objects")?.LastNode;
+
+            while (xOuterNode != null)
+            {
+                var xObjectToBeRemoved = XElement.Parse(xOuterNode.ToString());
+
+                if (xObjectToBeRemoved.Attribute("Remove") == null)
+                    xOuterNode = xOuterNode.PreviousNode;
+                else
+                {
+                    // If attribute exists, attribute value equals true
+                    int ToRemove = int.Parse(xObjectToBeRemoved.Attribute("Index").Value);
+
+                    var xInnerNode = xOuterNode.PreviousNode;
+
+                    while (xInnerNode != null)
+                    {
+                        var xObjectToBeClarified = XElement.Parse(xInnerNode.ToString());
+
+                        int ToClarify = int.Parse(xObjectToBeClarified.Attribute("Index").Value);
+
+                        if (xObjectToBeClarified.Attribute("Clarified") != null)
+                        {
+                            var Clarified = new SortedSet<int>(xObjectToBeClarified.Attribute("Clarified").Value.Trim(new char[] { '{', '}' }).Split(',').Select(i => int.Parse(i)));
+
+                            if (Clarified.Contains(ToRemove))
+                            {
+                                if (xObjectToBeClarified.Element("Clarified") == null)
+                                    xObjectToBeClarified.Add(new XElement("Clarified"));
+
+                                xObjectToBeRemoved.Attribute("Remove").Remove();
+
+                                xObjectToBeClarified.Element("Clarified").Add(xObjectToBeRemoved);
+
+                                Clarified.Remove(ToRemove);
+
+                                if (Clarified.Any())
+                                    xObjectToBeClarified.Attribute("Clarified").SetValue($"{'{'}{string.Join(",", Clarified.Select(i => i.ToString()))}{'}'}");
+                                else
+                                    xObjectToBeClarified.Attribute("Clarified").Remove();
+
+                                // Update XML
+
+                                ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Objects").Elements("Object").Where(e => int.Parse(e.Attribute("Index").Value) == ToClarify).Single().ReplaceWith(xObjectToBeClarified);
+
+                                ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Objects").Elements("Object").Where(e => int.Parse(e.Attribute("Index").Value) == ToRemove).Remove();
+
+                                var ObjectsNode = ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Objects");
+
+                                int j = 1;
+
+                                while (ObjectsNode.Elements("Object").Where(e => int.Parse(e.Attribute("Index").Value) == ToRemove + j).Any())
+                                {
+                                    var ObjectItem = ObjectsNode.Elements("Object").Where(e => int.Parse(e.Attribute("Index").Value) == ToRemove + j).Single();
+
+                                    ObjectItem.Add(new XElement("ReIndexedByClarifying", ToRemove + j));
+
+                                    ObjectItem.SetAttributeValue("Index", ToRemove + j - 1);
+
+                                    var ObjectCell = ContextDocument?.Element("Data").Element("Context").Element("Items").Elements("Item").Where(e => int.Parse(e.Element("Object").Attribute("Index").Value) == ToRemove + j);
+
+                                    foreach (var Item in ObjectCell)
+                                        Item.Element("Object").SetAttributeValue("Index", ToRemove + j - 1);
+
+                                    j++;
+                                }
+
+                                break;
+                            }
+                        }
+
+                        xInnerNode = xInnerNode.PreviousNode;
+                    }
+
+                    xOuterNode = ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Objects").LastNode;
+                }
+            }
+
+            void ClarifyObjectAt(int Index, int ToDelete)
+            {
+                // Update object references belonging to declarations
+                var Reference = ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Objects").Elements("Object").Where(e => int.Parse(e.Attribute("Index").Value) == Index).Single();
+
+                if (Reference.Attribute("Clarified") is null) Reference.Add(new XAttribute("Clarified", $"{'{'}{ToDelete}{'}'}"));
+                else
+                {
+                    var Clarified = new SortedSet<int>(Reference.Attribute("Clarified").Value.Trim(new char[] { '{', '}' }).Split(',').Select(i => int.Parse(i)));
+
+                    Clarified.Add(ToDelete);
+
+                    Reference.Attribute("Clarified").SetValue($"{'{'}{string.Join(",", Clarified.Select(i => i.ToString()))}{'}'}");
+                }
+
+                // Update object declaration (to be removed)
+                var ObjectDeclaration = ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Objects").Elements("Object").Where(e => int.Parse(e.Attribute("Index").Value) == ToDelete).Single();
+
+                if (ObjectDeclaration.Attribute("Remove") is null)
+                    ObjectDeclaration.Add(new XAttribute("Remove", bool.TrueString.ToLower()));
+                else
+                    ObjectDeclaration.Attribute("Remove").SetValue(bool.TrueString.ToLower());
+
+                // Remove certain object data items belonging to object index
+                ContextDocument.Element("Data").Element("Context").Element("Items").Elements("Item").Where(e => int.Parse(e.Element("Object").Attribute("Index").Value) == ToDelete).Remove();
+            }
+        }
+
+        /// <summary>
+        /// This function merges attributes with the same extent.
+        /// </summary>
+        private void ClarifyAttributes()
+        {
+            if (IsClarifiedByAttribute())
+                return;
+
+            #region Register XML property
+
+            if (ContextDocument.Element("Data").Element("Context").Element("Clarified") == null)
+                ContextDocument.Element("Data").Element("Context").AddFirst(new XElement("Clarified"));
+
+            if (ContextDocument.Element("Data").Element("Context").Element("Clarified").Attribute("ByAttribute") == null)
+                ContextDocument.Element("Data").Element("Context").Element("Clarified").Add(new XAttribute("ByAttribute", bool.TrueString.ToLower()));
+            else
+                ContextDocument.Element("Data").Element("Context").Element("Clarified").Attribute("ByAttribute").SetValue(bool.TrueString.ToLower());
+
+            #endregion
+
+            int Items = GetAttributes().Length;
+
+            for (int i = 1; i <= Items; i++)
+            {
+                XElement[] ColumnRef = Column(i);
+
+                if (ColumnRef.Any())
+                {
+                    for (int j = i + 1; j <= Items; j++)
+                    {
+                        XElement[] ColumnCmp = Column(j);
+
+                        if (ColumnCmp.Any())
+                        {
+                            int k = 0;
+
+                            while (k < ColumnRef.Length)
+                            {
+                                if (bool.Parse(ColumnRef[k].Element("Value").Value) != bool.Parse(ColumnCmp[k].Element("Value").Value))
+                                    break;
+
+                                k++;
+                            }
+
+                            if (k == ColumnRef.Length)
+                                ClarifyAttributeAt(i, j);
+                        }
+                    }
+                }
+            }
+
+            XNode xOuterNode;
+
+            // Replace and remove certain attributes after removable attributes have been remarked
+            xOuterNode = ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Attributes")?.LastNode;
+
+            while (xOuterNode != null)
+            {
+                var xAttributeToBeRemoved = XElement.Parse(xOuterNode.ToString());
+
+                if (xAttributeToBeRemoved.Attribute("Remove") == null)
+                    xOuterNode = xOuterNode.PreviousNode;
+                else
+                {
+                    // If attribute exists, attribute value equals true
+                    int ToRemove = int.Parse(xAttributeToBeRemoved.Attribute("Index").Value);
+
+                    var xInnerNode = xOuterNode.PreviousNode;
+
+                    while (xInnerNode != null)
+                    {
+                        var xAttributeToBeClarified = XElement.Parse(xInnerNode.ToString());
+
+                        int ToClarify = int.Parse(xAttributeToBeClarified.Attribute("Index").Value);
+
+                        if (xAttributeToBeClarified.Attribute("Clarified") != null)
+                        {
+                            var Clarified = new SortedSet<int>(xAttributeToBeClarified.Attribute("Clarified").Value.Trim(new char[] { '{', '}' }).Split(',').Select(i => int.Parse(i)));
+
+                            if (Clarified.Contains(ToRemove))
+                            {
+                                if (xAttributeToBeClarified.Element("Clarified") == null)
+                                    xAttributeToBeClarified.Add(new XElement("Clarified"));
+
+                                xAttributeToBeRemoved.Attribute("Remove").Remove();
+
+                                xAttributeToBeClarified.Element("Clarified").Add(xAttributeToBeRemoved);
+
+                                Clarified.Remove(ToRemove);
+
+                                if (Clarified.Any())
+                                    xAttributeToBeClarified.Attribute("Clarified").SetValue($"{'{'}{string.Join(",", Clarified.Select(i => i.ToString()))}{'}'}");
+                                else
+                                    xAttributeToBeClarified.Attribute("Clarified").Remove();
+
+                                // Update XML
+
+                                ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Attributes").Elements("Attribute").Where(e => int.Parse(e.Attribute("Index").Value) == ToClarify).Single().ReplaceWith(xAttributeToBeClarified);
+
+                                ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Attributes").Elements("Attribute").Where(e => int.Parse(e.Attribute("Index").Value) == ToRemove).Remove();
+
+                                var AttributesNode = ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Attributes");
+
+                                int j = 1;
+
+                                while (AttributesNode.Elements("Attribute").Where(e => int.Parse(e.Attribute("Index").Value) == ToRemove + j).Any())
+                                {
+                                    var AttributeItem = AttributesNode.Elements("Attribute").Where(e => int.Parse(e.Attribute("Index").Value) == ToRemove + j).Single();
+
+                                    AttributeItem.Add(new XElement("ReIndexedByClarifying", ToRemove + j));
+
+                                    AttributeItem.SetAttributeValue("Index", ToRemove + j - 1);
+
+                                    var AttributeCell = ContextDocument?.Element("Data").Element("Context").Element("Items").Elements("Item").Where(e => int.Parse(e.Element("Attribute").Attribute("Index").Value) == ToRemove + j);
+
+                                    foreach (var Item in AttributeCell)
+                                        Item.Element("Attribute").SetAttributeValue("Index", ToRemove + j - 1);
+
+                                    j++;
+                                }
+
+                                break;
+                            }
+                        }
+
+                        xInnerNode = xInnerNode.PreviousNode;
+                    }
+
+                    xOuterNode = ContextDocument.Element("Data").Element("Context").Element("Declarations").Element("Attributes").LastNode;
+                }
+            }
+
+            void ClarifyAttributeAt(int Index, int ToDelete)
+            {
+                // Update attribute references belonging to attribute declarations
+                var Reference = ContextDocument?.Element("Data").Element("Context").Element("Declarations").Element("Attributes").Elements("Attribute").Where(e => int.Parse(e.Attribute("Index").Value) == Index).Single();
+
+                if (Reference.Attribute("Clarified") is null) Reference.Add(new XAttribute("Clarified", $"{'{'}{ToDelete}{'}'}"));
+                else
+                {
+                    var Clarified = new SortedSet<int>(Reference.Attribute("Clarified").Value.Trim(new char[] { '{', '}' }).Split(',').Select(i => int.Parse(i)));
+
+                    Clarified.Add(ToDelete);
+
+                    Reference.Attribute("Clarified").SetValue($"{'{'}{string.Join(",", Clarified.Select(i => i.ToString()))}{'}'}");
+                }
+
+                // Update attribute declaration (to be removed)
+                var AttributeDeclaration = ContextDocument?.Element("Data").Element("Context").Element("Declarations").Element("Attributes").Elements("Attribute").Where(e => int.Parse(e.Attribute("Index").Value) == ToDelete).Single();
+
+                if (AttributeDeclaration.Attribute("Remove") is null)
+                    AttributeDeclaration.Add(new XAttribute("Remove", bool.TrueString.ToLower()));
+                else
+                    AttributeDeclaration.Attribute("Remove").SetValue(bool.TrueString.ToLower());
+
+                // Remove certain object data items
+                ContextDocument.Element("Data").Element("Context").Element("Items").Elements("Item").Where(e => int.Parse(e.Element("Attribute").Attribute("Index").Value) == ToDelete).Remove();
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the current context is clarified by attribute. 
+        /// </summary>
+        /// <returns>Returns true if the given status is valid.</returns>
+        private bool IsClarifiedByAttribute()
+        {
+            bool IsPartiallyClarified = false;
+
+            bool.TryParse(ContextDocument.Element("Data").Element("Context").Element("Clarified")?.Attribute("ByAttribute")?.Value, out IsPartiallyClarified);
+
+            return IsPartiallyClarified;
+        }
+
+        /// <summary>
+        /// Determines whether the current context is clarified by object. 
+        /// </summary>
+        /// <returns>Returns true if the given status is valid.</returns>
+        private bool IsClarifiedByObject()
+        {
+            bool IsPartiallyClarified = false;
+
+            bool.TryParse(ContextDocument.Element("Data").Element("Context").Element("Clarified")?.Attribute("ByObject")?.Value, out IsPartiallyClarified);
+
+            return IsPartiallyClarified;
+        }
+
+        /// <summary>
+        /// Determines whether the current context is clarified. 
+        /// </summary>
+        /// <param name="StatusToBeChecked">The status that is to be checked for the given context.</param>
+        /// <returns>Returns true if the given status is valid.</returns>
+        private bool IsClarified(Status StatusToBeChecked = Status.Clarified)
+        {
+            if (IsStandard())
+                return true;
+            else
+            {
+                switch(StatusToBeChecked)
+                {
+                    case Status.ClarifiedByObject: return IsClarifiedByObject();
+                    case Status.ClarifiedByAttribute: return IsClarifiedByAttribute();
+                    case Status.Clarified: return IsClarifiedByObject() && IsClarifiedByAttribute();
+                    default: return false;
+                }
+            }
+        }
+
         private static string XsdMarkup()
         {
             string XsdMarkup = string.Empty;
@@ -680,10 +1712,13 @@ namespace Cj.Fca
 
             string ResourceString = ResourceAssembly.GetName().Name + ".Context.xsd";
 
-            using (var ResourceStream = ResourceAssembly.GetManifestResourceStream(ResourceString))
-            using (var Reader = new StreamReader(ResourceStream))
-                XsdMarkup = Reader.ReadToEnd();
+            using var ResourceStream = ResourceAssembly.GetManifestResourceStream(ResourceString);
 
+            using var Reader = new StreamReader(ResourceStream);
+
+            XsdMarkup = Reader.ReadToEnd();
+
+            // Manual of XSD regular expressions https://www.w3.org/TR/xmlschema-2/#regexs
             return XsdMarkup;
         }
 
@@ -695,11 +1730,16 @@ namespace Cj.Fca
             return true;
         }
 
+        private static IEnumerable<XElement> ToEnumerable<XElement>(XElement Item)
+        {
+            return new XElement[] { Item }; // Equals to 'Enumerable.Repeat(Item,1)' or 'yield return Item'
+        }
+
         private static int[][] PowerSet(int Count)
         {
-            List<int[]> IntList = new List<int[]>();
+            var IntList = new List<int[]>();
 
-            SortedSet<int> Set = new SortedSet<int>();
+            var Set = new SortedSet<int>();
 
             #region Algorithm by backtracking
 
@@ -734,16 +1774,16 @@ namespace Cj.Fca
 
         private XElement[] Prime(XElement[] Items, ItemKind ObjectOrAttribute)
         {
-            // Defines derivation operator
+            // Defines derivation operator.
 
             // All returns true if set is empty.
             if ((Items.All(x => x.Name.LocalName == "Attribute") && Items.Length != 0) || (Items.Length == 0 && ObjectOrAttribute == ItemKind.Attribute))
             {
                 XElement[] Objects = GetObjects();
 
-                SortedSet<XElement> Extent = new SortedSet<XElement>(new XElementComparer());
+                var Extent = new SortedSet<XElement>(new XElementComparer());
 
-                foreach (XElement Object in Objects)
+                foreach (var Object in Objects)
                     if (Row(int.Parse(Object.Attribute("Index").Value)).Where(x => bool.Parse(x.Element("Value").Value) == true).OrderBy(x => x.Element("Attribute"), new XElementComparer()).Select(x => x.Element("Attribute")).Intersect(Items.OrderBy(x => x, new XElementComparer()), new XElementEqualityComparer()).OrderBy(x => x, new XElementComparer()).SequenceEqual(Items.OrderBy(x => x, new XElementComparer()).ToArray(), new XElementEqualityComparer()))
                         Extent.Add(Object);
 
@@ -755,9 +1795,9 @@ namespace Cj.Fca
             {
                 XElement[] Attributes = GetAttributes();
 
-                SortedSet<XElement> Intent = new SortedSet<XElement>(new XElementComparer());
+                var Intent = new SortedSet<XElement>(new XElementComparer());
 
-                foreach (XElement Attribute in Attributes)
+                foreach (var Attribute in Attributes)
                     if (Column(int.Parse(Attribute.Attribute("Index").Value)).Where(x => bool.Parse(x.Element("Value").Value) == true).OrderBy(x => x.Element("Object"), new XElementComparer()).Select(x => x.Element("Object")).Intersect(Items.OrderBy(x => x, new XElementComparer()), new XElementEqualityComparer()).OrderBy(x => x, new XElementComparer()).SequenceEqual(Items.OrderBy(x => x, new XElementComparer()).ToArray(), new XElementEqualityComparer()))
                         Intent.Add(Attribute);
 
@@ -821,6 +1861,42 @@ namespace Cj.Fca
                 #endregion
 
                 return 0;
+            }
+        }
+
+        private ulong ToBinaryValue(XElement[] Items, ItemKind Kind)
+        {
+            if (!Assert() || Items == null || Items.Length == 0 || ItemKind.Generic == Kind) return 0;
+            else
+            {
+                ulong Value = 0; int Length = 0;
+
+                switch(Kind)
+                {
+                    case ItemKind.Attribute:
+                        {
+                            Length = GetAttributes().Length;
+
+                            break;
+                        }
+
+                    case ItemKind.Object:
+                        {
+                            Length = GetObjects().Length;
+
+                            break;
+                        }
+                }
+
+                foreach (XElement Item in Items)
+                    Value = Value + (1ul << (Length - int.Parse(Item.Attribute("Index").Value)));
+
+                // 1 << 1 = 2
+                // 1 << 2 = 4
+                // 1 << 3 = 8
+                // 1 << 4 = ...
+
+                return Value;
             }
         }
 

@@ -1,23 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Cj.Fca.Public.snk</AssemblyOriginatorKeyFile>
     <DelaySign>true</DelaySign>
-    <LangVersion>preview</LangVersion>
+    <ApplicationIcon>Assets\Cj.Fca.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>\Cj.Fca\Cj.Fca.xml</DocumentationFile>
+    <DocumentationFile>.\Cj.Fca\Cj.Fca.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>.\Cj.Fca\Cj.Fca.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Context.xsd" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Context.xsd" />
+    <EmbeddedResource Include="Assets\Context.xsd" />
   </ItemGroup>
 
 </Project>

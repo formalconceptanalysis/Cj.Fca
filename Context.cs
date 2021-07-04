@@ -50,12 +50,31 @@ namespace Cj.Fca
         /// This static function validates the given XML file against an XSD format specification that is defined by <see cref="Cj.Fca.Context.XsdMarkup"/> as an embedded resource (Context.xsd).
         /// </summary>
         /// <param name="Protocol">Contains error messages if format errors are detected.</param>
+        /// <param name="XmlFile">XML file to be checked.</param>
+        /// <returns>True if there are no errors, otherwise false. Errors can be looked up in the protocol back from this procedure.</returns>
+        public static bool Validate(out string Protocol, string XmlFile)
+        {
+            _ = new Context(out Protocol, XmlFile);
+
+            return string.IsNullOrEmpty(Protocol);
+        }
+
+        /// <summary>
+        /// This static function validates the given XML file against an XSD format specification that is defined by <see cref="Cj.Fca.Context.XsdMarkup"/> as an embedded resource (Context.xsd).
+        /// </summary>
+        /// <param name="Protocol">Contains error messages if format errors are detected.</param>
         /// <param name="XmlData">XML data to be checked.</param>
         /// <returns>True if there are no errors, otherwise false. Errors can be looked up in the protocol back from this procedure.</returns>
         public static bool Validate(out string Protocol, XDocument XmlData)
         {
             return new Context(out Protocol, XmlData) != null && string.IsNullOrEmpty(Protocol);
         }
+
+        /// <summary>
+        /// Generates an empty collection.
+        /// </summary>
+        /// <returns>Returns an empty collection.</returns>
+        public static XElement[] Empty => Array.Empty<XElement>();
 
         /// <summary>
         /// Default constructor.
@@ -441,6 +460,48 @@ namespace Cj.Fca
         }
 
         /// <summary>
+        /// This method performs a comparison for all given items.
+        /// </summary>
+        /// <param name="ItemsToBeChecked">Items to be checked.</param>
+        /// <param name="Items">Items in which is searched.</param>
+        /// <returns>Returns true if item could be found, otherwise false.</returns>
+        public static async Task<bool> ContainsAllAsync(XElement[] Items, params XElement[] ItemsToBeChecked)
+        {
+            return await Task.Run(() =>
+            {
+                if (ItemsToBeChecked == null || Items == null)
+                    return false;
+
+                foreach (XElement Item in ItemsToBeChecked)
+                    if (!Items.Contains(Item, new XElementEqualityComparer()))
+                        return false;
+
+                return true; // Empty set is subset of every set.
+            });
+        }
+
+        /// <summary>
+        /// This method performs a comparison for all given concepts.
+        /// </summary>
+        /// <param name="Concept">Concept to be checked.</param>
+        /// <param name="Concepts">Concept lattice in which is searched.</param>
+        /// <returns>Returns true if formal concept could be found, otherwise false.</returns>
+        public static async Task<bool> ContainsAllAsync((XElement[] Extent, XElement[] Intent)[] Concepts, params (XElement[] Extent, XElement[] Intent)[] Concept)
+        {
+            return await Task.Run(() =>
+            {
+                if (Concept == null || Concepts == null)
+                    return false;
+
+                foreach ((XElement[] Extent, XElement[] Intent) Item in Concept)
+                    if (!Concepts.Contains(Item, new ConceptEqualityComparer()))
+                        return false;
+
+                return true;
+            });
+        }
+
+        /// <summary>
         /// Compares to a list of formal concepts.
         /// </summary>
         /// <param name="ConceptLattice">Right list of formal concepts to be compared.</param>
@@ -697,6 +758,83 @@ namespace Cj.Fca
             return string.IsNullOrEmpty(Protocol);
         }
 
+        private bool IsStandard()
+        {
+            if (!Assert())
+                return false;
+
+            if (ContextDocument?.Element("Data").Element("Context").Attribute("Status")?.Value == "Standard")
+                return true;
+            else
+                return false;
+        }
+
+        private bool CheckIndex(int Index, ItemKind Kind)
+        {
+            if (Index <= 0)
+                return false;
+            else if (ItemKind.Object == Kind && Index <= GetObjects().Length)
+                return true;
+            else if (ItemKind.Attribute == Kind && Index <= GetAttributes().Length)
+                return true;
+            else
+                return false;
+        }
+
+        private async Task<(XElement[] Extent, XElement[] Intent)> ClosureAsync(XElement[] Items, ItemKind ObjectOrAttribute)
+        {
+            if (Items.Length == 0 && ObjectOrAttribute == ItemKind.Generic)
+                return (null, null);
+
+            if ((Items.All(Item => Item.Name.LocalName == "Attribute") && Items.Length != 0) || (Items.Length == 0 && ObjectOrAttribute == ItemKind.Attribute))
+                return (await PrimeAsync(Items, ItemKind.Attribute), await PrimeAsync(await PrimeAsync(Items, ItemKind.Attribute), ItemKind.Object));
+
+            if ((Items.All(Item => Item.Name.LocalName == "Object") && Items.Length != 0) || (Items.Length == 0 && ObjectOrAttribute == ItemKind.Object))
+                return (await PrimeAsync(await PrimeAsync(Items, ItemKind.Object), ItemKind.Attribute), await PrimeAsync(Items, ItemKind.Object));
+
+            return (null, null);
+        }
+
+        private async Task<XElement[]> ClosureAsync(XElement[] Union, XElement Item)
+        {
+            if (Item.Name.LocalName == "Object")
+                return (await ClosureAsync(Union, ItemKind.Generic)).Extent;
+
+            if (Item.Name.LocalName == "Attribute")
+                return (await ClosureAsync(Union, ItemKind.Generic)).Intent;
+
+            return null;
+        }
+
+        private static int CompareConceptsBySize((XElement[] Extent, XElement[] Intent) Left, (XElement[] Extent, XElement[] Intent) Right)
+        {
+            if (Left.Extent.Length < Right.Extent.Length) return +1;      // x < y
+            else if (Left.Extent.Length > Right.Extent.Length) return -1; // x > y
+            else if (Left.Intent.Length > Right.Intent.Length) return +1; // x < y
+            else if (Left.Intent.Length < Right.Intent.Length) return -1; // x > y
+            else
+            {
+                #region Compared by index position
+
+                for (int Index = 0; Index < Left.Intent.Length; Index++)
+                    if (int.Parse(Left.Intent[Index].Attribute("Index").Value) < int.Parse(Right.Intent[Index].Attribute("Index").Value)) return -1;
+                    else if (int.Parse(Left.Intent[Index].Attribute("Index").Value) > int.Parse(Right.Intent[Index].Attribute("Index").Value)) return +1;
+
+                for (int Index = 0; Index < Left.Extent.Length; Index++)
+                    if (int.Parse(Left.Extent[Index].Attribute("Index").Value) < int.Parse(Right.Extent[Index].Attribute("Index").Value)) return +1;
+                    else if (int.Parse(Left.Extent[Index].Attribute("Index").Value) > int.Parse(Right.Extent[Index].Attribute("Index").Value)) return -1;
+
+                #endregion
+
+                return 0;
+            }
+        }
+
+        private static bool IsLessThanOrEqual((XElement[] Extent, XElement[] Intent) Concept1, (XElement[] Extent, XElement[] Intent) Concept2)
+        {
+            return IsSubset(Concept1.Extent, Concept2.Extent) || IsSubset(Concept2.Intent, Concept1.Intent);
+        }
+
         private static string XsdMarkup()
         {
             var ResourceAssembly = Assembly.GetExecutingAssembly();
@@ -719,6 +857,22 @@ namespace Cj.Fca
                 return false;
 
             return Validate(out _, ContextDocument) && CheckXsdVersion() && CheckStatusConsistency() && CheckDocumentIndexOrder();
+        }
+
+        private static Context Assert(Context ToBeChecked)
+        {
+            if (!ToBeChecked.IsValid() || ToBeChecked.GetAttributes() == null || ToBeChecked.GetObjects() == null)
+                return null;
+
+            if (Validate(out _, ToBeChecked) && ToBeChecked.CheckXsdVersion() && ToBeChecked.CheckStatusConsistency() && ToBeChecked.CheckDocumentIndexOrder())
+                return ToBeChecked;
+            else
+                return null;
+        }
+
+        private static IEnumerable<XElement> ToEnumerable<XElement>(XElement Item)
+        {
+            return new XElement[] { Item };
         }
 
         private async Task<int> CheckPrimaryKeysForObjectsAsync()
@@ -802,6 +956,32 @@ namespace Cj.Fca
         private XElement GetObjectSource(int Index) => ContextDocument?.Element("Data").Element("Context").Element("Declarations").Element("Objects").Elements("Object").Where(Item => int.Parse(Item.Attribute("Index").Value) == Index).Single().Element("Source");
 
         private XElement GetAttributeSource(int Index) => ContextDocument?.Element("Data").Element("Context").Element("Declarations").Element("Attributes").Elements("Attribute").Where(Item => int.Parse(Item.Attribute("Index").Value) == Index).Single().Element("Source");
+
+        private static bool IsProperSubset(XElement[] Left, XElement[] Right)
+        {
+            if (new SortedSet<XElement>(Left, new XElementComparer()).IsProperSubsetOf(new SortedSet<XElement>(Right, new XElementComparer())))
+                return true;
+            else
+                return false;
+        }
+
+        private static bool IsSubset(XElement[] Left, XElement[] Right)
+        {
+            if (new SortedSet<XElement>(Left, new XElementComparer()).IsSubsetOf(new SortedSet<XElement>(Right, new XElementComparer())))
+                return true;
+            else
+                return false;
+        }
+
+        private static XElement[] FindSubset(XElement[] Intent, params int[] Indices)
+        {
+            SortedSet<XElement> Attributes = new(new XElementComparer());
+
+            foreach (int Index in Indices)
+                Attributes.Add(Intent[Index - 1]);
+
+            return Attributes.ToArray();
+        }
 
         private bool CheckStatusConsistency()
         {
@@ -966,6 +1146,72 @@ namespace Cj.Fca
             });
         }
 
+        private static async Task<int[][]> SubsetsAsync(int N, int K)
+        {
+            int[] Coefficients;
+
+            return await Task.Run(async () =>
+            {
+                List<int[]> IntList = new();
+
+                Coefficients = new int[N + 1];
+
+                Coefficients[0] = await BinominalCoefficientsAsync(N, K);
+
+                for (int Index = 1; Index <= N; Index++)
+                    Coefficients[Index] = Index;
+
+                for (int Index = 1; Index <= Coefficients[0]; Index++)
+                {
+                    int[] Subset = new int[K];
+
+                    Array.ConstrainedCopy(Coefficients, 1, Subset, 0, K);
+
+                    IntList.Add(Subset);
+
+                    if (IntList.Count == Coefficients[0])
+                        return IntList.ToArray();
+
+                    NextSubset(N, K);
+                }
+
+                return null;
+            });
+
+            void NextSubset(int LocalN, int LocalK)
+            {
+                int Size = K;
+
+                while (Coefficients[Size] == LocalN - LocalK + Size)
+                    Size--;
+
+                Coefficients[Size] = Coefficients[Size] + 1;
+
+                for (int Index = Size + 1; Index <= K; Index++)
+                    Coefficients[Index] = Coefficients[Index - 1] + 1;
+            }
+        }
+
+        private static async Task<int> BinominalCoefficientsAsync(int N, int K)
+        {
+            return await Task.Run(() =>
+            {
+                int[] PascalsTriangle = new int[N + 1];
+
+                PascalsTriangle[0] = 1;
+
+                for (int Row = 1; Row <= N; Row++)
+                {
+                    PascalsTriangle[Row] = 1;
+
+                    for (int Index = Row - 1; Index >= 1; Index--)
+                        PascalsTriangle[Index] = PascalsTriangle[Index] + PascalsTriangle[Index - 1];
+                }
+
+                return PascalsTriangle[K];
+            });
+        }
+
         private async Task<XElement[]> PrimeAsync(XElement[] Items, ItemKind ObjectOrAttribute)
         {
             return await Task.Run(() =>
@@ -1104,6 +1350,32 @@ namespace Cj.Fca
             }
         }
 
+        private static bool IsEqual((XElement[] Extent, XElement[] Intent) Left, (XElement[] Extent, XElement[] Intent) Right)
+        {
+            return CompareConceptBySize(Left, Right) == 0;
+        }
+
+        private int CompareByBinaryOrder(XElement[] Left, XElement[] Right)
+        {
+            if (Left == null)
+            {
+                return Right == null ? 0 : -1;
+            }
+            else
+            {
+                if (Right == null)
+                {
+                    return +1;
+                }
+                else
+                {
+                    if (ToBinaryValue(Left) < ToBinaryValue(Right)) return -1;
+                    else if (ToBinaryValue(Left) > ToBinaryValue(Right)) return +1;
+                    else return 0;
+                }
+            }
+        }
+
         private ulong ToBinaryValue(XElement[] Items, ItemKind Kind)
         {
             if (!Assert() || Items == null || Items.Length == 0 || ItemKind.Generic == Kind) return 0;
@@ -1137,6 +1409,50 @@ namespace Cj.Fca
                 // 1 << 4 = ...
 
                 return Value;
+            }
+        }
+
+        private ulong ToBinaryValue(XElement[] Items)
+        {
+            if (Items == null || Items.Length == 0) return 0;
+            else
+            {
+                ulong Value = 0;
+
+                foreach (XElement Item in Items)
+                    Value += (1ul << (GetAttributes().Length - int.Parse(Item?.Attribute("Index")?.Value)));
+
+                // 1 << 1 = 2
+                // 1 << 2 = 4
+                // 1 << 3 = 8
+                // 1 << 4 = ...
+
+                return Value;
+            }
+        }
+
+        private int CompareByCardinality(XElement[] Left, XElement[] Right)
+        {
+            if (Left == null)
+            {
+                return Right == null ? 0 : -1;
+            }
+            else
+            {
+                if (Right == null)
+                {
+                    return +1;
+                }
+                else
+                {
+                    if (Left.Length < Right.Length) return -1;
+                    else if (Left.Length > Right.Length) return +1;
+                    else
+                    {
+                        /* partially inverted order */
+                        return -CompareByBinaryOrder(Left, Right);
+                    }
+                }
             }
         }
 

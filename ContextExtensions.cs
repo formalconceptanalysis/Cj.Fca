@@ -319,6 +319,30 @@ namespace Cj.Fca
         public static string[] ToText(this Context DataContext) => ToStringArray(DataContext, false);
 
         /// <summary>
+        /// This function converts the formal context data from the given XML document to a memory representation that can be used to support MVVM.
+        /// </summary>
+        /// <returns>Binary context of given formal context.</returns>
+        /// <remarks>Matrix is empty if data context is invalid or is not defined and treat index as label resp. memo in the first step.</remarks>
+        public static async Task<Context.BinaryItem<int>[,]> ToBinaryContextAsync(this Context DataContext)
+        {
+            return await Task.Run(() =>
+            {
+                if (!DataContext.IsValid())
+                    return new Context.BinaryItem<int>[0, 0]; // Empty matrix
+
+                Context.BinaryItem<int>[,] Items = new Context.BinaryItem<int>[DataContext.GetObjects().Length, DataContext.GetAttributes().Length];
+
+                for (int i = 0; i < DataContext.GetObjects().Length; i++)
+                    for (int j = 0; j < DataContext.GetAttributes().Length; j++)
+                        Items[i, j] = ToBinaryItem(DataContext, i + 1, j + 1);
+
+                Context.BinaryItem<int>.Title = DataContext.GetTitle();
+
+                return Items;
+            });
+        }
+
+        /// <summary>
         /// Converts the XML data structure of formal context to an ASCII or HTML table.
         /// </summary>
         /// <param name="DataContext">Given formal context.</param>
@@ -488,5 +512,14 @@ namespace Cj.Fca
             }
             return $"{Abbreviation}: {Descriptor}";
         }
+
+        private static Context.BinaryItem<int> ToBinaryItem(this Context DataContext, int RowIndex, int ColumnIndex) => new()
+        {
+            Row = RowIndex, // Treat index as label resp. memo in the first step
+
+            Column = ColumnIndex,
+
+            Value = DataContext.CellValue(RowIndex, ColumnIndex)
+        };
     }
 }

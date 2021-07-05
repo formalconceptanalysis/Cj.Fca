@@ -47,6 +47,33 @@ namespace Cj.Fca
         }
 
         /// <summary>
+        /// Representation of a binary context item.
+        /// </summary>
+        public partial class BinaryItem<T>
+        {
+            /// <summary>
+            /// Title of formal context definition. The title is mandatory according to XSD format specification that is defined by <see cref="Cj.Fca.Context.XsdMarkup"/>
+            /// as an embedded resource (Assets.Context.xsd).
+            /// </summary>
+            public static string Title { get; set; } = null;
+
+            /// <summary>
+            /// Row data of binary item such as label, memo and other properties.
+            /// </summary>
+            public T Row { get; set; } = default;
+
+            /// <summary>
+            /// Column data of binary item such as label, memo and other properties.
+            /// </summary>
+            public T Column { get; set; } = default;
+
+            /// <summary>
+            /// The binary context value.
+            /// </summary>
+            public bool Value { get; set; } = false;
+        }
+
+        /// <summary>
         /// This static function validates the given XML file against an XSD format specification that is defined by <see cref="Cj.Fca.Context.XsdMarkup"/> as an embedded resource (Context.xsd).
         /// </summary>
         /// <param name="Protocol">Contains error messages if format errors are detected.</param>

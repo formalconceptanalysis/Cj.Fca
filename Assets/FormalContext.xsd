@@ -1,27 +1,38 @@
-﻿<xsd:schema version='1.0.0' attributeFormDefault='unqualified' elementFormDefault='qualified' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:cj="https://github.com/formalconceptanalysis/Cj.Fca">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema version='1.0.0' attributeFormDefault='unqualified' elementFormDefault='qualified' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:fca="https://schemas.formalconceptanalysis.dev" targetNamespace="https://schemas.formalconceptanalysis.dev" xml:lang='en-us'>
+  <xsd:annotation>
+    <xsd:appinfo>Formal Context Schema © 2019-2025 Jens Lorscheider</xsd:appinfo>
+    <xsd:documentation xml:lang='en-us'>
+      This document is distributed under the terms of the Creative Commons Attribution 4.0 International License https://creativecommons.org/licenses/by/4.0/, which permits unrestricted use, distribution, and reproduction in any medium, provided you give appropriate credit to the original author and the source, provide a link to the Creatice Common license, and indicate if changes were made.
+    </xsd:documentation>
+  </xsd:annotation>
   <xsd:element name='Data'>
-    <xsd:annotation>
-      <xsd:documentation xml:lang='en-us'>The data element consists of a header with titles and a context item that can be represented by a cross table.</xsd:documentation>
-      <xsd:documentation xml:lang='en-us'>https://www.w3schools.com/xml/schema_elements_ref.asp</xsd:documentation>
-    </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element name='Header' minOccurs='1' maxOccurs='1'>
-          <xsd:annotation>
-            <xsd:documentation xml:lang='en-us'>A header helps you describe data and can hold three types of string items: title, subtitle and memo. The memo item can be used to record other information. </xsd:documentation>
-          </xsd:annotation>
           <xsd:complexType>
             <xsd:sequence>
-              <xsd:element name='Title' minOccurs='1' maxOccurs='1' type='xsd:string'/>
+              <xsd:choice>
+                <xsd:element name='Identifier' minOccurs="1">
+                  <xsd:simpleType>
+                    <xsd:annotation>
+                      <xsd:documentation xml:lang='en-us'>Dot separated identifiers where each identifier must comprise only ASCII alphanumerics and hyphens.</xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:restriction base="xsd:string">
+                      <xsd:pattern value="^(?:([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"/>
+                    </xsd:restriction>
+                  </xsd:simpleType>
+                </xsd:element>
+                <xsd:element name="Title" type='xsd:string' minOccurs="1"/>
+              </xsd:choice>
               <xsd:element name='Subtitle' minOccurs='0' maxOccurs='1' type='xsd:string'/>
-              <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+              <xsd:element name='Memo' type='fca:MemoType' minOccurs='0' maxOccurs='1'/>
+              <xsd:element name='Reference' type='fca:ReferenceType' minOccurs='0' maxOccurs='1'/>
+              <xsd:element name='Copyrights' type='fca:CopyrightType' minOccurs='0' maxOccurs='1'/>
             </xsd:sequence>
           </xsd:complexType>
         </xsd:element>
-        <xsd:element name='Context' minOccurs='1' maxOccurs='1'>
-          <xsd:annotation>
-            <xsd:documentation xml:lang='en-us'>A rectangular table where columns are headed by attribute names and rows are headed by object names with cells for alternative values like true and false. A true value in the context item list means that the attribute belongs to the object.</xsd:documentation>
-          </xsd:annotation>
+        <xsd:element name='FormalContext' minOccurs='1' maxOccurs='1'>
           <xsd:complexType>
             <xsd:sequence>
               <xsd:element name='Status' minOccurs='0' maxOccurs='1'>
@@ -33,7 +44,49 @@
                         <xsd:attribute name='ByAttribute' type='xsd:boolean' use='required'/>
                       </xsd:complexType>
                     </xsd:element>
+                    <xsd:choice>
+                      <xsd:element name='PreservedByObject' minOccurs='0' maxOccurs='1'>
+                        <xsd:complexType>
+                          <xsd:sequence>
+                            <xsd:element name='ReIndexedByClarifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                            <xsd:element name='ReIndexedByPurifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                            <xsd:element name='ReIndexedByReducing' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                            <xsd:element name='ReIndexedByTrimming' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                          </xsd:sequence>
+                          <xsd:attribute name='MarkerMinExclusive' use='required'>
+                            <xsd:simpleType>
+                              <xsd:restriction base='xsd:int'>
+                                <xsd:minExclusive value="1"/>
+                              </xsd:restriction>
+                            </xsd:simpleType>
+                          </xsd:attribute>
+                        </xsd:complexType>
+                      </xsd:element>
+                      <xsd:element name='PreservedByAttribute' minOccurs='0' maxOccurs='1'>
+                        <xsd:complexType>
+                          <xsd:sequence>
+                            <xsd:element name='ReIndexedByClarifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                            <xsd:element name='ReIndexedByPurifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                            <xsd:element name='ReIndexedByReducing' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                            <xsd:element name='ReIndexedByTrimming' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                          </xsd:sequence>
+                          <xsd:attribute name='MarkerMinExclusive' use='required'>
+                            <xsd:simpleType>
+                              <xsd:restriction base='xsd:int'>
+                                <xsd:minExclusive value="1"/>
+                              </xsd:restriction>
+                            </xsd:simpleType>
+                          </xsd:attribute>
+                        </xsd:complexType>
+                      </xsd:element>
+                    </xsd:choice>
                     <xsd:element name='Clarified' minOccurs='0' maxOccurs='1'>
+                      <xsd:complexType>
+                        <xsd:attribute name='ByObject' type='xsd:boolean' use='required'/>
+                        <xsd:attribute name='ByAttribute' type='xsd:boolean' use='required'/>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name='Purified' minOccurs='0' maxOccurs='1'>
                       <xsd:complexType>
                         <xsd:attribute name='ByObject' type='xsd:boolean' use='required'/>
                         <xsd:attribute name='ByAttribute' type='xsd:boolean' use='required'/>
@@ -45,53 +98,53 @@
                         <xsd:attribute name='ByAttribute' type='xsd:boolean' use='required'/>
                       </xsd:complexType>
                     </xsd:element>
+                    <xsd:element name='Trimmed' minOccurs='0' maxOccurs='1'>
+                      <xsd:complexType>
+                        <xsd:attribute name='ByObject' type='xsd:boolean' use='required'/>
+                        <xsd:attribute name='ByAttribute' type='xsd:boolean' use='required'/>
+                      </xsd:complexType>
+                    </xsd:element>
                   </xsd:sequence>
                 </xsd:complexType>
               </xsd:element>
               <xsd:element name='Declarations' minOccurs='1' maxOccurs='1'>
-                <xsd:annotation>
-                  <xsd:documentation xml:lang='en-us'>Declarations can be described by a list of attributes and objects.</xsd:documentation>
-                </xsd:annotation>
                 <xsd:complexType>
                   <xsd:sequence>
                     <xsd:element name='Attributes' minOccurs='1' maxOccurs='1'>
-                      <xsd:annotation>
-                        <xsd:documentation xml:lang='en-us'>List of attributes in any order. It is common to start with index 1 in a linear strict order.</xsd:documentation>
-                      </xsd:annotation>
                       <xsd:complexType>
                         <xsd:sequence>
                           <xsd:element name='Reduced' minOccurs='0' maxOccurs='1'/>
+                          <xsd:element name='Trimmed' minOccurs='0' maxOccurs='1'/>
                           <xsd:element name='Attribute' minOccurs='1' maxOccurs='unbounded'>
                             <xsd:complexType>
                               <xsd:sequence>
-                                <xsd:element name='PrimaryKey' type='xsd:string' minOccurs='0' maxOccurs='1'/>
-                                <xsd:element name='Source' type='SourceType' minOccurs='0' maxOccurs='1'/>
-                                <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Term' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Source' type='fca:SourceType' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Memo' type='fca:MemoType' minOccurs='0' maxOccurs='1'/>
                                 <xsd:element name='ReIndexedBySwapping' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
                                 <xsd:element name='Clarified' minOccurs='0' maxOccurs='1'>
-                                  <xsd:annotation>
-                                    <xsd:documentation xml:lang='en-us'>List of clarified attributes.</xsd:documentation>
-                                  </xsd:annotation>
                                   <xsd:complexType>
                                     <xsd:sequence>
                                       <xsd:element name='Attribute' minOccurs='1' maxOccurs='unbounded'>
                                         <xsd:complexType>
                                           <xsd:sequence>
-                                            <xsd:element name='PrimaryKey' type='xsd:string' minOccurs='0' maxOccurs='1'/>
-                                            <xsd:element name='Source' type='SourceType' minOccurs='0' maxOccurs='1'/>
-                                            <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+                                            <xsd:element name='Term' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+                                            <xsd:element name='Source' type='fca:SourceType' minOccurs='0' maxOccurs='1'/>
+                                            <xsd:element name='Memo' type='fca:MemoType' minOccurs='0' maxOccurs='1'/>
                                             <xsd:element name='ReIndexedBySwapping' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
                                           </xsd:sequence>
-                                          <xsd:attributeGroup ref='DeclarationGroup'/>
+                                          <xsd:attributeGroup ref='fca:DeclarationGroup'/>
                                         </xsd:complexType>
                                       </xsd:element>
                                     </xsd:sequence>
                                   </xsd:complexType>
                                 </xsd:element>
                                 <xsd:element name='ReIndexedByClarifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                                <xsd:element name='ReIndexedByPurifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
                                 <xsd:element name='ReIndexedByReducing' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                                <xsd:element name='ReIndexedByTrimming' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
                               </xsd:sequence>
-                              <xsd:attributeGroup ref='DeclarationGroup'/>
+                              <xsd:attributeGroup ref='fca:DeclarationGroup'/>
                               <xsd:attribute name='_1-generated' use='optional'>
                                 <xsd:simpleType>
                                   <xsd:restriction base='xsd:string'>
@@ -105,43 +158,40 @@
                       </xsd:complexType>
                     </xsd:element>
                     <xsd:element name='Objects' minOccurs='1' maxOccurs='1'>
-                      <xsd:annotation>
-                        <xsd:documentation xml:lang='en-us'>List of objects in any order. It is common to start with index 1 in a linear strict order.</xsd:documentation>
-                      </xsd:annotation>
                       <xsd:complexType>
                         <xsd:sequence>
                           <xsd:element name='Reduced' minOccurs='0' maxOccurs='1'/>
+                          <xsd:element name='Trimmed' minOccurs='0' maxOccurs='1'/>
                           <xsd:element name='Object' minOccurs='1' maxOccurs='unbounded'>
                             <xsd:complexType>
                               <xsd:sequence>
-                                <xsd:element name='PrimaryKey' type='xsd:string' minOccurs='0' maxOccurs='1'/>
-                                <xsd:element name='Source' type='SourceType' minOccurs='0' maxOccurs='1'/>
-                                <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Term' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Source' type='fca:SourceType' minOccurs='0' maxOccurs='1'/>
+                                <xsd:element name='Memo' type='fca:MemoType' minOccurs='0' maxOccurs='1'/>
                                 <xsd:element name='ReIndexedBySwapping' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
                                 <xsd:element name='Clarified' minOccurs='0' maxOccurs='1'>
-                                  <xsd:annotation>
-                                    <xsd:documentation xml:lang='en-us'>List of clarified objects.</xsd:documentation>
-                                  </xsd:annotation>
                                   <xsd:complexType>
                                     <xsd:sequence>
                                       <xsd:element name='Object' minOccurs='1' maxOccurs='unbounded'>
                                         <xsd:complexType>
                                           <xsd:sequence>
-                                            <xsd:element name='PrimaryKey' type='xsd:string' minOccurs='0' maxOccurs='1'/>
-                                            <xsd:element name='Source' type='SourceType' minOccurs='0' maxOccurs='1'/>
-                                            <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'/>
+                                            <xsd:element name='Term' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+                                            <xsd:element name='Source' type='fca:SourceType' minOccurs='0' maxOccurs='1'/>
+                                            <xsd:element name='Memo' type='fca:MemoType' minOccurs='0' maxOccurs='1'/>
                                             <xsd:element name='ReIndexedBySwapping' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
                                           </xsd:sequence>
-                                          <xsd:attributeGroup ref='DeclarationGroup'/>
+                                          <xsd:attributeGroup ref='fca:DeclarationGroup'/>
                                         </xsd:complexType>
                                       </xsd:element>
                                     </xsd:sequence>
                                   </xsd:complexType>
                                 </xsd:element>
                                 <xsd:element name='ReIndexedByClarifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                                <xsd:element name='ReIndexedByPurifying' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
                                 <xsd:element name='ReIndexedByReducing' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+                                <xsd:element name='ReIndexedByTrimming' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
                               </xsd:sequence>
-                              <xsd:attributeGroup ref='DeclarationGroup'/>
+                              <xsd:attributeGroup ref='fca:DeclarationGroup'/>
                               <xsd:attribute name='_0-generated' use='optional'>
                                 <xsd:simpleType>
                                   <xsd:restriction base='xsd:string'>
@@ -158,9 +208,6 @@
                 </xsd:complexType>
               </xsd:element>
               <xsd:element name='Items' minOccurs='1' maxOccurs='1'>
-                <xsd:annotation>
-                  <xsd:documentation xml:lang='en-us'>List of context items. Context items can be defined in any order. It is useful to arrange context items by rows.</xsd:documentation>
-                </xsd:annotation>
                 <xsd:complexType>
                   <xsd:sequence>
                     <xsd:element name='Reduced' minOccurs='0' maxOccurs='unbounded'>
@@ -169,103 +216,302 @@
                           <xsd:element name='Attributes' minOccurs='0' maxOccurs='1'>
                             <xsd:complexType>
                               <xsd:sequence>
-                                <xsd:element name='Attribute' type='ReducibleItemType' minOccurs='1' maxOccurs='unbounded'/>
+                                <xsd:element name='Attribute' type='fca:ReducibleItemType' minOccurs='1' maxOccurs='unbounded'/>
                               </xsd:sequence>
                             </xsd:complexType>
                           </xsd:element>
                           <xsd:element name='Objects' minOccurs='0' maxOccurs='1'>
                             <xsd:complexType>
                               <xsd:sequence>
-                                <xsd:element name='Object' type='ReducibleItemType' minOccurs='1' maxOccurs='unbounded'/>
+                                <xsd:element name='Object' type='fca:ReducibleItemType' minOccurs='1' maxOccurs='unbounded'/>
                               </xsd:sequence>
                             </xsd:complexType>
                           </xsd:element>
                         </xsd:sequence>
                       </xsd:complexType>
                     </xsd:element>
-                    <xsd:element name='Item' type='ContextItemType' minOccurs='1' maxOccurs='unbounded'/>
+                    <xsd:element name='Item' type='fca:ContextItemType' minOccurs='1' maxOccurs='unbounded'/>
                   </xsd:sequence>
                 </xsd:complexType>
               </xsd:element>
             </xsd:sequence>
             <xsd:attribute name='Status' use='optional'>
-              <xsd:annotation>
-                <xsd:documentation xml:lang='en-us'>
-                  Definition of context properties. A formal context is called a standard context if the context is clarified and reduced.
-                </xsd:documentation>
-              </xsd:annotation>
               <xsd:simpleType>
                 <xsd:restriction base='xsd:string'>
+                  <xsd:enumeration value='Canonical'/>
                   <xsd:enumeration value='Standard'/>
+                  <xsd:enumeration value='One-element'/>
+                  <xsd:enumeration value='Preserved'/>
                 </xsd:restriction>
               </xsd:simpleType>
             </xsd:attribute>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name='Format' default='1.0.0'>
+      <xsd:attribute name='Schema' default='1.0.0' use='optional'>
         <xsd:annotation>
-          <xsd:documentation xml:lang='en-us'>This format version number is represented as a three-part string: Major version, minor version and patch version according to Semantic Versioning 2.0.0. https://semver.org/
+          <xsd:documentation xml:lang='en-us'>
+            Versioning according to https://semver.org/
           </xsd:documentation>
         </xsd:annotation>
         <xsd:simpleType>
-          <xsd:restriction base='xsd:string'>
-            <xsd:pattern value='(\d+\.){2}(\d+)'>
+          <xsd:restriction base='xsd:token'>
+            <xsd:pattern value='^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'>
             </xsd:pattern>
           </xsd:restriction>
         </xsd:simpleType>
       </xsd:attribute>
     </xsd:complexType>
   </xsd:element>
-  <xsd:complexType name='AuthorType'>
+  <xsd:complexType name ='ReferenceType'>
     <xsd:annotation>
-      <xsd:documentation xml:lang='en-us'>This field can be used for any address information with references.</xsd:documentation>
+      <xsd:documentation xml:lang='en-us'>Format of author-date reference according to The Chicago Manual of Style.</xsd:documentation>
     </xsd:annotation>
     <xsd:sequence>
-      <xsd:element name='FirstName' type='xsd:string' minOccurs='0' maxOccurs='1'/>
-      <xsd:element name='Name' type='xsd:string' minOccurs='1' maxOccurs='1'/>
-    </xsd:sequence>
-  </xsd:complexType>
-  <xsd:complexType name='MemoType' mixed='true'>
-    <xsd:annotation>
-      <xsd:documentation xml:lang='en-us'>This field can be used for any information with references.</xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name='Text' type='xsd:string' minOccurs='0' maxOccurs='1'/>
-      <xsd:element name='References' minOccurs='0' maxOccurs='1'>
+      <xsd:element name='Document' type='xsd:string' minOccurs='1' maxOccurs='1'/>
+      <xsd:element name='Copyrights' minOccurs='0' maxOccurs='1'>
         <xsd:complexType>
           <xsd:sequence>
-            <xsd:element name='Reference' type='ReferenceType' minOccurs='1' maxOccurs='unbounded'>
-            </xsd:element>
+            <xsd:element name='Copyright' type='fca:CopyrightType' minOccurs='1' maxOccurs='unbounded'/>
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
     </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name ='ReferenceLinkType'>
+    <xsd:sequence>
+      <xsd:element name='See' type='xsd:string' minOccurs='1' maxOccurs='1'/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name='CopyrightType'>
+    <xsd:sequence>
+      <xsd:element name='Symbol' type='xsd:string' minOccurs='1' maxOccurs='1' default='©'/>
+      <xsd:element name='FirstPublished' type='xsd:gYear' minOccurs='1' maxOccurs='1'/>
+      <xsd:element name='Owners' minOccurs='1' maxOccurs='unbounded'>
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name='Name' type='xsd:string' minOccurs='1' maxOccurs='unbounded'/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name='Content' type='xsd:string' minOccurs='1' maxOccurs='1'/>
+      <xsd:element name='CanonicalURL' type='xsd:string' minOccurs='0' maxOccurs='unbounded'/>
+      <xsd:element name='Changes' minOccurs='0' maxOccurs='1'>
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name='Change' type='xsd:string' minOccurs='1' maxOccurs='unbounded'/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name='MemoType' mixed='true'>
+    <xsd:sequence>
+      <xsd:element name='Text' type='xsd:string' minOccurs='0' maxOccurs='1'/>
+    </xsd:sequence>
     <xsd:attribute name='Text' type='xsd:string' use='optional'/>
   </xsd:complexType>
   <xsd:complexType name='SourceType'>
-    <xsd:annotation>
-      <xsd:documentation xml:lang='en-us'>This field can be used for source code with references based on ISO 639.</xsd:documentation>
-    </xsd:annotation>
     <xsd:sequence>
+      <xsd:element name='Reference' type='fca:ReferenceType' minOccurs='0' maxOccurs='1'/>
+      <xsd:element name='ReferenceLink' type='fca:ReferenceLinkType' minOccurs='0' maxOccurs='1'/>
       <xsd:element name='Text' type='xsd:string' minOccurs='1' maxOccurs='1'/>
       <xsd:element name='Remarks' type='xsd:string' minOccurs='0' maxOccurs='1'/>
-      <xsd:element name='KeyWords' minOccurs='0' maxOccurs='1'>
+      <xsd:element name='Traits' minOccurs='0' maxOccurs='1'>
         <xsd:complexType>
           <xsd:sequence>
-            <xsd:element name='KeyWord' minOccurs='1' maxOccurs='unbounded'>
+            <xsd:element name='Trait' minOccurs='1' maxOccurs='unbounded'>
               <xsd:complexType>
                 <xsd:sequence>
-                  <xsd:element name='PrimaryKey' type='xsd:string' minOccurs='1' maxOccurs='1'/>
-                  <xsd:element name='de' minOccurs='0' maxOccurs='1'>
-                    <xsd:simpleType>
-                      <xsd:restriction base='xsd:string'>
-                        <xsd:annotation>
-                          <xsd:documentation>Comma separated list of strings regardless of their contents.</xsd:documentation>
-                        </xsd:annotation>
-                        <xsd:pattern value='(.+?)(?:,|$)'/>
-                      </xsd:restriction>
-                    </xsd:simpleType>
+                  <xsd:element name='Term' type='xsd:string' minOccurs='1' maxOccurs='1'/>
+                  <xsd:element name='Indicators' minOccurs='1' maxOccurs='1'>
+                    <xsd:complexType>
+                      <xsd:sequence>
+                        <xsd:element name='aa' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ab' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ae' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='af' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ak' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='am' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='an' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ar' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='as' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='av' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ay' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='az' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ba' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='be' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='bg' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='bi' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='bm' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='bn' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='bo' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='br' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='bs' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ca' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ce' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ch' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='co' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='cr' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='cs' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='cu' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='cv' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='cy' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='da' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='de' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='dv' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='dz' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ee' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='el' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='en' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='eo' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='es' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='et' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='eu' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='fa' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ff' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='fi' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='fj' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='fo' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='fr' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='fy' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ga' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='gd' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='gl' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='gn' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='gu' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='gv' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ha' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='he' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='hi' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ho' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='hr' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ht' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='hu' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='hy' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='hz' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ia' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='id' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ie' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ig' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ii' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ik' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='io' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='is' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='it' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='iu' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ja' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='jv' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ka' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='kg' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ki' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='kj' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='kk' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='kl' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='km' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='kn' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ko' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='kr' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ks' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ku' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='kv' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='kw' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ky' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='la' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='lb' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='lg' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='li' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ln' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='lo' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='lt' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='lu' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='lv' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='mg' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='mh' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='mi' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='mk' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ml' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='mn' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='mr' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ms' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='mt' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='my' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='na' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='nb' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='nd' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ne' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ng' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='nl' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='nn' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='no' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='nr' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='nv' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ny' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='oc' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='oj' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='om' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='or' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='os' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='pa' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='pi' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='pl' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ps' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='pt' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='qu' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='rm' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='rn' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ro' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ru' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='rw' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sa' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sc' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sd' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='se' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sg' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='si' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sk' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sl' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sm' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sn' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='so' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sq' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sr' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ss' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='st' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='su' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sv' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='sw' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ta' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='te' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='tg' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='th' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ti' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='tk' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='tl' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='tn' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='to' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='tr' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ts' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='tt' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='tw' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ty' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ug' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='uk' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ur' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='uz' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='ve' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='vi' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='vo' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='wa' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='wo' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='xh' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='yi' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='yo' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='za' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='zh' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                        <xsd:element name='zu' type='fca:IndicatorType' minOccurs='0' maxOccurs='1'/>
+                      </xsd:sequence>
+                    </xsd:complexType>
                   </xsd:element>
                 </xsd:sequence>
               </xsd:complexType>
@@ -273,111 +519,61 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
-      <xsd:element name='References' minOccurs='0' maxOccurs='1'>
-        <xsd:complexType>
-          <xsd:sequence>
-            <xsd:element name='Reference' type='ReferenceType' minOccurs='1' maxOccurs='unbounded'>
-            </xsd:element>
-          </xsd:sequence>
-        </xsd:complexType>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
-  <xsd:complexType name ='ReferenceType'>
-    <xsd:annotation>
-      <xsd:documentation xml:lang='en-us'>Basic format of author-date references according to The Chicago Manual of Style, 2010, 16th Edition. The University of Chicago Press.</xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name='Authors' minOccurs='0' maxOccurs='1'>
-        <xsd:complexType>
-          <xsd:sequence>
-            <xsd:element name='Author' type='AuthorType' minOccurs='1' maxOccurs='unbounded'/>
-          </xsd:sequence>
-        </xsd:complexType>
-      </xsd:element>
-      <xsd:element name='Date' type='xsd:gYear' minOccurs='0' maxOccurs='1'/>
-      <xsd:element name='Title' type='xsd:string' minOccurs='0' maxOccurs='1'/>
-      <xsd:element name='Pages' type='xsd:string' minOccurs='0' maxOccurs='1'/>
-      <xsd:element name='URL' type='xsd:anyURI' minOccurs='0' maxOccurs='1'/>
-      <xsd:element name='DOI' type='xsd:anyURI' minOccurs='0' maxOccurs='1'/>
     </xsd:sequence>
   </xsd:complexType>
   <xsd:complexType name='ContextItemType'>
-    <xsd:annotation>
-      <xsd:documentation xml:lang='en-us'>Describes a context item as a pair of object and attribute item with an index that defines the incidence relation according to the given formal context.</xsd:documentation>
-    </xsd:annotation>
     <xsd:sequence>
       <xsd:element name='Object' minOccurs='1' maxOccurs='1'>
-        <xsd:annotation>
-          <xsd:documentation xml:lang='en-us'>Object item and its index.</xsd:documentation>
-        </xsd:annotation>
         <xsd:complexType>
           <xsd:attribute name='Index' type='xsd:positiveInteger' use='required'/>
         </xsd:complexType>
       </xsd:element>
       <xsd:element name='Attribute' minOccurs='1' maxOccurs='1'>
-        <xsd:annotation>
-          <xsd:documentation xml:lang='en-us'>Attribute item and its index.</xsd:documentation>
-        </xsd:annotation>
         <xsd:complexType>
           <xsd:attribute name='Index' type='xsd:positiveInteger' use='required'/>
         </xsd:complexType>
       </xsd:element>
-      <xsd:element name='Memo' type='MemoType' minOccurs='0' maxOccurs='1'>
-        <xsd:annotation>
-          <xsd:documentation xml:lang='en-us'>This field can be used for specific information.</xsd:documentation>
-        </xsd:annotation>
+      <xsd:element name='Memo' type='fca:MemoType' minOccurs='0' maxOccurs='1'>
       </xsd:element>
       <xsd:element name='Value' type='xsd:boolean' minOccurs='1' maxOccurs='1'>
         <xsd:annotation>
-          <xsd:documentation xml:lang='en-us'>A true value means that the object has the attribute, otherwise false.</xsd:documentation>
+          <xsd:documentation xml:lang='en-us'>Value is true if the object has the attribute, otherwise false.</xsd:documentation>
         </xsd:annotation>
       </xsd:element>
-      <xsd:element name='Relatives' minOccurs='0' maxOccurs='1'>
+      <xsd:element name='Reduct' minOccurs='0' maxOccurs='1'>
         <xsd:complexType>
           <xsd:sequence>
-            <xsd:element name='Attributes' type='ItemType' minOccurs='0' maxOccurs='1'>
+            <xsd:element name='Attributes' type='fca:ItemType' minOccurs='0' maxOccurs='1'>
             </xsd:element>
-            <xsd:element name='Objects' type='ItemType' minOccurs='0' maxOccurs='1'>
+            <xsd:element name='Objects' type='fca:ItemType' minOccurs='0' maxOccurs='1'>
             </xsd:element>
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
     </xsd:sequence>
-    <xsd:attribute name='Arrow' use='optional'>
-      <xsd:simpleType>
-        <xsd:restriction base='xsd:string'>
-          <xsd:enumeration value='+'/>
-          <xsd:enumeration value='-'/>
-          <xsd:enumeration value=':'/>
-          <xsd:enumeration value='!'/>
-        </xsd:restriction>
-      </xsd:simpleType>
-    </xsd:attribute>
+    <xsd:attribute name='Arrow' type='fca:ArrowKindInstructionType' use='optional'/>
   </xsd:complexType>
   <xsd:complexType name='ReducibleItemType'>
     <xsd:sequence>
       <xsd:element name ='Items'>
         <xsd:complexType>
           <xsd:sequence>
-            <xsd:element name='Item' type='ContextItemType' minOccurs='1' maxOccurs='unbounded'>
-              <xsd:annotation>
-                <xsd:documentation xml:lang='en-us'>The list of items represents an object (row) or an attribute (column).</xsd:documentation>
-              </xsd:annotation>
+            <xsd:element name='Item' type='fca:ContextItemType' minOccurs='1' maxOccurs='unbounded'>
             </xsd:element>
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
-      <xsd:element name='Relatives' type='RelativesItemType' minOccurs='1' maxOccurs='1'>
+      <xsd:element name='Reduct' type='fca:ReductType' minOccurs='1' maxOccurs='1'>
       </xsd:element>
     </xsd:sequence>
   </xsd:complexType>
-  <xsd:complexType name='RelativesItemType'>
+  <xsd:complexType name='ReductType'>
     <xsd:sequence>
       <xsd:element name="Item" minOccurs="2" maxOccurs="unbounded">
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element name='ReIndexedByReducing' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
+            <xsd:element name='ReIndexedByTrimming' type='xsd:positiveInteger' minOccurs='0' maxOccurs='unbounded'/>
           </xsd:sequence>
           <xsd:attribute name='Index' type='xsd:positiveInteger' use='required'/>
         </xsd:complexType>
@@ -395,10 +591,79 @@
     </xsd:sequence>
   </xsd:complexType>
   <xsd:attributeGroup name='DeclarationGroup'>
-    <xsd:annotation>
-      <xsd:documentation xml:lang='en-us'>An object and attribute declaration. For reasons of convenience attributes should have a label like 'a', 'b' etc.</xsd:documentation>
-    </xsd:annotation>
+    <xsd:attribute name='OriginalIndex' type='xsd:positiveInteger' use='required'/>
     <xsd:attribute name='Index' type='xsd:positiveInteger' use='required'/>
     <xsd:attribute name='Label' type='xsd:string' use='optional'/>
   </xsd:attributeGroup>
+  <xsd:simpleType name='IndicatorType'>
+    <xsd:annotation>
+      <xsd:documentation xml:lang='en-us'>ISO 639-1</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base='xsd:string'>
+      <xsd:annotation>
+        <xsd:documentation>
+          Comma separated list of strings. https://regex101.com/
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:pattern value='(.+?)(?:,|$)'/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name='ArrowKindInstructionType'>
+    <xsd:restriction base='xsd:string'>
+      <xsd:enumeration value='+' id='NorthEast'>
+      </xsd:enumeration>
+      <xsd:enumeration value='-' id='SouthWest'>
+      </xsd:enumeration>
+      <xsd:enumeration value='0' id='NorthEastSouthWest'>
+      </xsd:enumeration>
+      <xsd:enumeration value='&#x2422;' id='NoneApplicable'>
+        <xsd:annotation>
+          <xsd:documentation xml:lang='en-us'>Blank symbol (Unicode Standard 14.0) if arrow relation is not applicable.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name='ItemKindInstructionType'>
+    <xsd:restriction base='xsd:int'>
+      <xsd:enumeration value='0' id='Generic'/>
+      <xsd:enumeration value='1' id='Attribute'/>
+      <xsd:enumeration value='2' id='Object'/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name='ContextComparisonInstructionType'>
+    <xsd:restriction base='xsd:int'>
+      <xsd:enumeration value='0' id='CurrentStatus'/>
+      <xsd:enumeration value='1' id='IgnoreDeclarations'/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name='StatusInstructionType'>
+    <xsd:restriction base='xsd:byte'>
+      <xsd:enumeration value='0' id='Original'/>
+      <!-- 0000 0000 -->
+      <xsd:enumeration value='1' id='ClarifiedByObject'/>
+      <!-- 0000 0001 -->
+      <xsd:enumeration value='2' id='ClarifiedByAttribute'/>
+      <!-- 0000 0010 -->
+      <xsd:enumeration value='3' id='Clarified'/>
+      <!-- 0000 0011 -->
+      <xsd:enumeration value='5' id='PurifiedByObject'/>
+      <!-- 0000 0101 -->
+      <xsd:enumeration value='6' id='PurifiedByAttribute'/>
+      <!-- 0000 0110 -->
+      <xsd:enumeration value='7' id='Purified'/>
+      <!-- 0000 0111 -->
+      <xsd:enumeration value='13' id='ReducedByObject'/>
+      <!-- 0000 1101 -->
+      <xsd:enumeration value='14' id='ReducedByAttribute'/>
+      <!-- 0000 1110 -->
+      <xsd:enumeration value='15' id='Reduced'/>
+      <!-- 0000 1111 -->
+      <xsd:enumeration value='29' id='TrimmedByObject'/>
+      <!-- 0001 1101 -->
+      <xsd:enumeration value='30' id='TrimmedByAttribute'/>
+      <!-- 0001 1110 -->
+      <xsd:enumeration value='31' id='Trimmed'/>
+      <!-- 0001 1111 -->
+    </xsd:restriction>
+  </xsd:simpleType>
 </xsd:schema>
